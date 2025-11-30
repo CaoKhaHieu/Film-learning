@@ -3,34 +3,75 @@ import { Hero } from "@/components/Hero";
 import { MovieRow } from "@/components/MovieRow";
 import { Top10Row } from "@/components/Top10Row";
 import { Footer } from "@/components/Footer";
+import { createClient, type Movie } from '@/lib/supabase-server';
 
-// Mock Data
-const newActionMovies = [
-  { id: "1", title: "Biệt Đội Đánh Thuê 4", image: "https://images.unsplash.com/photo-1535016120720-40c6874c3b13?auto=format&fit=crop&w=500&q=60", isNew: true, quality: "FHD", year: "2023" },
-  { id: "2", title: "John Wick 4", image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=500&q=60", isNew: true, quality: "4K", year: "2023" },
-  { id: "3", title: "Nhiệm Vụ Bất Khả Thi 7", image: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60", isNew: true, quality: "HD", year: "2023" },
-  { id: "4", title: "Fast X", image: "https://images.unsplash.com/photo-1596727147705-54a9d6ed27e6?auto=format&fit=crop&w=500&q=60", isNew: false, quality: "FHD", year: "2023" },
-  { id: "5", title: "Transformers 7", image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=500&q=60", isNew: true, quality: "4K", year: "2023" },
-  { id: "6", title: "The Creator", image: "https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&w=500&q=60", isNew: true, quality: "FHD", year: "2023" },
-];
 
-const newRomanceMovies = [
-  { id: "7", title: "Past Lives", image: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?auto=format&fit=crop&w=500&q=60", isNew: true, quality: "FHD", year: "2023" },
-  { id: "8", title: "Elemental", image: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60", isNew: false, quality: "HD", year: "2023" },
-  { id: "9", title: "No Hard Feelings", image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=500&q=60", isNew: true, quality: "FHD", year: "2023" },
-  { id: "10", title: "Barbie", image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=500&q=60", isNew: true, quality: "4K", year: "2023" },
-  { id: "11", title: "Red, White & Royal Blue", image: "https://images.unsplash.com/photo-1535016120720-40c6874c3b13?auto=format&fit=crop&w=500&q=60", isNew: false, quality: "FHD", year: "2023" },
-];
+// Transform DB movie to component format for MovieRow
+function transformMovieForRow(movie: Movie) {
+  return {
+    id: movie.id,
+    title: movie.title,
+    image: movie.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60",
+    isNew: false,
+    quality: movie.is_vip ? "VIP" : "HD",
+    year: new Date(movie.created_at).getFullYear().toString(),
+  };
+}
 
-const top10Movies = [
-  { id: "t1", title: "One Piece Live Action", image: "https://images.unsplash.com/photo-1596727147705-54a9d6ed27e6?auto=format&fit=crop&w=500&q=60", rank: 1 },
-  { id: "t2", title: "Moving", image: "https://images.unsplash.com/photo-1616530940355-351fabd9524b?auto=format&fit=crop&w=500&q=60", rank: 2 },
-  { id: "t3", title: "Loki Season 2", image: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60", rank: 3 },
-  { id: "t4", title: "Gen V", image: "https://images.unsplash.com/photo-1535016120720-40c6874c3b13?auto=format&fit=crop&w=500&q=60", rank: 4 },
-  { id: "t5", title: "The Continental", image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=500&q=60", rank: 5 },
-];
+// Transform DB movie to component format for Top10Row
+function transformMovieForTop10(movie: Movie, rank: number) {
+  return {
+    id: movie.id,
+    title: movie.title,
+    image: movie.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60",
+    rank: rank,
+  };
+}
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+
+  // Fetch movies by difficulty level
+  const [beginnerMovies, intermediateMovies, advancedMovies, latestMovies] = await Promise.all([
+    // Beginner movies (max 10)
+    supabase
+      .from('movies')
+      .select('*')
+      .eq('difficulty_level', 'beginner')
+      .limit(10)
+      .then(({ data }) => data || []),
+
+    // Intermediate movies (max 10)
+    supabase
+      .from('movies')
+      .select('*')
+      .eq('difficulty_level', 'intermediate')
+      .limit(10)
+      .then(({ data }) => data || []),
+
+    // Advanced movies (max 10)
+    supabase
+      .from('movies')
+      .select('*')
+      .eq('difficulty_level', 'advanced')
+      .limit(10)
+      .then(({ data }) => data || []),
+
+    // Latest 5 movies for top section
+    supabase
+      .from('movies')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => data || [])
+  ]);
+
+  // Transform data for components
+  const beginnerData = beginnerMovies.map(transformMovieForRow);
+  const intermediateData = intermediateMovies.map(transformMovieForRow);
+  const advancedData = advancedMovies.map(transformMovieForRow);
+  const topMoviesData = latestMovies.map((movie, index) => transformMovieForTop10(movie, index + 1));
+
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
       <Navbar />
@@ -38,14 +79,15 @@ export default function Home() {
 
       <div className="mt-[-100px] relative z-20 space-y-8">
         <div className="bg-gradient-to-r from-yellow-900/20 to-transparent py-4">
-          <Top10Row title="Top 5 Phim Nên Học" movies={top10Movies} />
+          <Top10Row title="Top 5 Phim Nên Học" movies={topMoviesData} />
         </div>
-        <MovieRow title="Phim Cấp Độ Cơ Bản (Beginner)" movies={newActionMovies} />
-        <MovieRow title="Phim Cấp Độ Trung Cấp (Intermediate)" movies={newRomanceMovies} />
-        <MovieRow title="Phim Cấp Độ Nâng Cao (Advanced)" movies={newActionMovies} />
+        <MovieRow title="Phim Cấp Độ Cơ Bản (Beginner)" movies={beginnerData} />
+        <MovieRow title="Phim Cấp Độ Trung Cấp (Intermediate)" movies={intermediateData} />
+        <MovieRow title="Phim Cấp Độ Nâng Cao (Advanced)" movies={advancedData} />
       </div>
 
       <Footer />
     </main>
   );
 }
+

@@ -25,3 +25,33 @@ export async function createClient() {
     }
   )
 }
+
+// Database types
+export type Movie = {
+  id: string;
+  title: string;
+  description: string | null;
+  poster: string | null;
+  video_url: string | null;
+  is_vip: boolean;
+  difficulty_level: 'beginner' | 'intermediate' | 'advanced' | null;
+  created_at: string;
+};
+
+export type Subtitle = {
+  id: string;
+  movie_id: string;
+  language: 'en' | 'vi';
+  url: string;
+  created_at: string;
+};
+
+export type Subscription = {
+  id: string;
+  user_id: string;
+  plan: 'free' | 'vip';
+  start_date: string;
+  end_date: string | null;
+  status: 'active' | 'canceled' | 'expired';
+  created_at: string;
+};
