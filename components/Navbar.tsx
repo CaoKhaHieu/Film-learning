@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Bell, User, PlayCircle, LogOut, Crown } from "lucide-react";
+import { Search, User, LogOut, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SearchModal } from "./SearchModal";
 
 export function Navbar() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isVIP, setIsVIP] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     // Get current user
@@ -96,14 +98,14 @@ export function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 md:px-8 transition-all duration-300 ${isScrolled
-          ? "bg-black/80 backdrop-blur-md shadow-lg"
-          : "bg-gradient-to-b from-black/80 to-transparent"
+        ? "bg-black/80 backdrop-blur-md shadow-lg"
+        : "bg-linear-to-b from-black/80 to-transparent"
         }`}
     >
       <div className="flex items-center gap-8">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative">
-            <span className="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 bg-[length:200%_auto] animate-shimmer">
+            <span className="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-linear-to-r from-yellow-400 via-orange-500 to-yellow-400 bg-size-[200%_auto] animate-shimmer">
               FILM LEARNING
             </span>
             <span className="absolute top-0 left-0 text-2xl font-black tracking-tighter text-yellow-500/50 blur-sm animate-pulse">
@@ -119,15 +121,14 @@ export function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-          <Search className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-white bg-transparent hover:scale-125 hover:bg-transparent"
+          onClick={() => setShowSearch(true)}
+        >
+          <Search className="h-5 w-5 text-white" />
         </Button>
-
-        {user && (
-          <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-            <Bell className="h-5 w-5" />
-          </Button>
-        )}
 
         {!user ? (
           <Button
@@ -217,6 +218,10 @@ export function Navbar() {
           </>
         )}
       </div>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={showSearch} onClose={() => setShowSearch(false)} />
     </nav>
   );
 }
+

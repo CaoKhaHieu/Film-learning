@@ -21,7 +21,7 @@ export function Top10Row({ title, movies }: Top10RowProps) {
         {title}
       </h2>
 
-      <div className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x">
+      <div className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x justify-center md:justify-start">
         {movies.map((movie, index) => (
           <Link href={`/movie/${movie.id}`} key={movie.id} className="relative flex-shrink-0 w-[160px] md:w-[220px] snap-start group cursor-pointer">
             {/* Rank Number */}
@@ -37,14 +37,14 @@ export function Top10Row({ title, movies }: Top10RowProps) {
               {index + 1}
             </div>
 
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-zinc-800 ml-4 shadow-xl transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2">
+            <div className="relative aspect-2/3 w-full overflow-hidden rounded-lg bg-zinc-800 ml-4 shadow-xl transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2">
               <Image
                 src={movie.image}
                 alt={movie.title}
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 <h3 className="text-sm font-bold text-white text-center truncate">{movie.title}</h3>
               </div>
