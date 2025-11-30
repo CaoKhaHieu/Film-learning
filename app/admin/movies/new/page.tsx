@@ -1,75 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase, type Genre } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function NewMoviePage() {
   const router = useRouter();
+  const supabase = createClient();
   const [loading, setLoading] = useState(false);
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     title: "",
-    original_title: "",
-    slug: "",
-    type: "movie" as "movie" | "series",
     description: "",
-    poster_url: "",
-    backdrop_url: "",
-    trailer_url: "",
-    release_year: new Date().getFullYear(),
-    duration: 0,
-    imdb_rating: 0,
-    age_rating: "",
-    country: "USA",
-    language: "en",
+    poster: "",
+    video_url: "",
+    is_vip: false,
     difficulty_level: "intermediate" as "beginner" | "intermediate" | "advanced",
-    is_featured: false,
-    is_published: false,
   });
 
-  useEffect(() => {
-    fetchGenres();
-  }, []);
-
-  const fetchGenres = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("genres")
-        .select("*")
-        .order("name");
-
-      if (error) throw error;
-      setGenres(data || []);
-    } catch (error) {
-      console.error("Error fetching genres:", error);
-    }
-  };
-
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
-  };
-
-  const handleTitleChange = (title: string) => {
-    setFormData({
-      ...formData,
-      title,
-      slug: generateSlug(title),
-    });
-  };
+  const [subtitleEnUrl, setSubtitleEnUrl] = useState("");
+  const [subtitleViUrl, setSubtitleViUrl] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,18 +38,29 @@ export default function NewMoviePage() {
 
       if (movieError) throw movieError;
 
-      // Insert movie-genre relationships
-      if (selectedGenres.length > 0) {
-        const movieGenres = selectedGenres.map((genreId) => ({
+      // Insert subtitles if URLs are provided
+      const subtitles = [];
+      if (subtitleEnUrl) {
+        subtitles.push({
           movie_id: movie.id,
-          genre_id: genreId,
-        }));
+          language: "en",
+          url: subtitleEnUrl,
+        });
+      }
+      if (subtitleViUrl) {
+        subtitles.push({
+          movie_id: movie.id,
+          language: "vi",
+          url: subtitleViUrl,
+        });
+      }
 
-        const { error: genreError } = await supabase
-          .from("movie_genres")
-          .insert(movieGenres);
+      if (subtitles.length > 0) {
+        const { error: subtitleError } = await supabase
+          .from("subtitles")
+          .insert(subtitles);
 
-        if (genreError) throw genreError;
+        if (subtitleError) throw subtitleError;
       }
 
       alert("Đã thêm phim thành công!");
@@ -107,14 +71,6 @@ export default function NewMoviePage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const toggleGenre = (genreId: string) => {
-    setSelectedGenres((prev) =>
-      prev.includes(genreId)
-        ? prev.filter((id) => id !== genreId)
-        : [...prev, genreId]
-    );
   };
 
   return (
@@ -141,48 +97,20 @@ export default function NewMoviePage() {
               Thông Tin Cơ Bản
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Tên phim <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                  placeholder="Thám Tử Lừng Danh Conan"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Tên gốc</label>
-                <input
-                  type="text"
-                  value={formData.original_title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, original_title: e.target.value })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                  placeholder="Detective Conan"
-                />
-              </div>
-            </div>
-
             <div>
               <label className="block text-sm font-medium mb-2">
-                Slug <span className="text-red-500">*</span>
+                Tên phim <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                placeholder="tham-tu-lung-danh-conan"
+                placeholder="Thám Tử Lừng Danh Conan"
               />
-              <p className="text-xs text-gray-500 mt-1">URL-friendly identifier (tự động tạo từ tên phim)</p>
             </div>
 
             <div>
@@ -198,35 +126,19 @@ export default function NewMoviePage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Loại</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) =>
-                    setFormData({ ...formData, type: e.target.value as any })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                >
-                  <option value="movie">Phim lẻ</option>
-                  <option value="series">Phim bộ</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Độ khó</label>
-                <select
-                  value={formData.difficulty_level}
-                  onChange={(e) =>
-                    setFormData({ ...formData, difficulty_level: e.target.value as any })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                >
-                  <option value="beginner">Dễ (Beginner)</option>
-                  <option value="intermediate">Trung bình (Intermediate)</option>
-                  <option value="advanced">Khó (Advanced)</option>
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Độ khó</label>
+              <select
+                value={formData.difficulty_level}
+                onChange={(e) =>
+                  setFormData({ ...formData, difficulty_level: e.target.value as any })
+                }
+                className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+              >
+                <option value="beginner">Dễ (Beginner)</option>
+                <option value="intermediate">Trung bình (Intermediate)</option>
+                <option value="advanced">Khó (Advanced)</option>
+              </select>
             </div>
           </div>
 
@@ -240,149 +152,62 @@ export default function NewMoviePage() {
               <label className="block text-sm font-medium mb-2">URL Poster</label>
               <input
                 type="url"
-                value={formData.poster_url}
+                value={formData.poster}
                 onChange={(e) =>
-                  setFormData({ ...formData, poster_url: e.target.value })
+                  setFormData({ ...formData, poster: e.target.value })
                 }
                 className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                placeholder="https://..."
+                placeholder="https://image.example.com/poster.jpg"
               />
+              <p className="text-xs text-gray-500 mt-1">URL hình ảnh poster của phim</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">URL Backdrop</label>
+              <label className="block text-sm font-medium mb-2">URL Video (HLS)</label>
               <input
                 type="url"
-                value={formData.backdrop_url}
+                value={formData.video_url}
                 onChange={(e) =>
-                  setFormData({ ...formData, backdrop_url: e.target.value })
+                  setFormData({ ...formData, video_url: e.target.value })
                 }
                 className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                placeholder="https://..."
+                placeholder="https://example.com/video.m3u8"
               />
+              <p className="text-xs text-gray-500 mt-1">URL file HLS (.m3u8) của video</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">URL Trailer</label>
-              <input
-                type="url"
-                value={formData.trailer_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, trailer_url: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                placeholder="https://youtube.com/..."
-              />
-            </div>
-          </div>
+            <div className="border-t border-zinc-700 pt-4 mt-4">
+              <h3 className="text-lg font-semibold mb-3">Phụ Đề</h3>
 
-          {/* Details */}
-          <div className="bg-zinc-900 rounded-lg p-6 space-y-4">
-            <h2 className="text-xl font-bold mb-4 border-l-4 border-yellow-500 pl-3">
-              Chi Tiết
-            </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    URL Phụ đề tiếng Anh (EN)
+                  </label>
+                  <input
+                    type="url"
+                    value={subtitleEnUrl}
+                    onChange={(e) => setSubtitleEnUrl(e.target.value)}
+                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                    placeholder="https://example.com/subtitle-en.vtt"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">URL file phụ đề tiếng Anh (.vtt hoặc .srt)</p>
+                </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Năm</label>
-                <input
-                  type="number"
-                  value={formData.release_year}
-                  onChange={(e) =>
-                    setFormData({ ...formData, release_year: parseInt(e.target.value) })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    URL Phụ đề tiếng Việt (VI)
+                  </label>
+                  <input
+                    type="url"
+                    value={subtitleViUrl}
+                    onChange={(e) => setSubtitleViUrl(e.target.value)}
+                    className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                    placeholder="https://example.com/subtitle-vi.vtt"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">URL file phụ đề tiếng Việt (.vtt hoặc .srt)</p>
+                </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Thời lượng (phút)</label>
-                <input
-                  type="number"
-                  value={formData.duration}
-                  onChange={(e) =>
-                    setFormData({ ...formData, duration: parseInt(e.target.value) })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">IMDB Rating</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="10"
-                  value={formData.imdb_rating}
-                  onChange={(e) =>
-                    setFormData({ ...formData, imdb_rating: parseFloat(e.target.value) })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Phân loại</label>
-                <input
-                  type="text"
-                  value={formData.age_rating}
-                  onChange={(e) =>
-                    setFormData({ ...formData, age_rating: e.target.value })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                  placeholder="PG-13"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Quốc gia</label>
-                <input
-                  type="text"
-                  value={formData.country}
-                  onChange={(e) =>
-                    setFormData({ ...formData, country: e.target.value })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Ngôn ngữ</label>
-                <input
-                  type="text"
-                  value={formData.language}
-                  onChange={(e) =>
-                    setFormData({ ...formData, language: e.target.value })
-                  }
-                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                  placeholder="en"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Genres */}
-          <div className="bg-zinc-900 rounded-lg p-6 space-y-4">
-            <h2 className="text-xl font-bold mb-4 border-l-4 border-yellow-500 pl-3">
-              Thể Loại
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {genres.map((genre) => (
-                <button
-                  key={genre.id}
-                  type="button"
-                  onClick={() => toggleGenre(genre.id)}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${selectedGenres.includes(genre.id)
-                      ? "bg-yellow-500 text-black"
-                      : "bg-zinc-800 text-gray-300 hover:bg-zinc-700"
-                    }`}
-                >
-                  {genre.name}
-                </button>
-              ))}
             </div>
           </div>
 
@@ -395,25 +220,16 @@ export default function NewMoviePage() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={formData.is_featured}
+                  checked={formData.is_vip}
                   onChange={(e) =>
-                    setFormData({ ...formData, is_featured: e.target.checked })
+                    setFormData({ ...formData, is_vip: e.target.checked })
                   }
                   className="w-5 h-5 rounded border-zinc-700 bg-zinc-800 text-yellow-500 focus:ring-yellow-500"
                 />
-                <span className="text-sm">Phim nổi bật</span>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.is_published}
-                  onChange={(e) =>
-                    setFormData({ ...formData, is_published: e.target.checked })
-                  }
-                  className="w-5 h-5 rounded border-zinc-700 bg-zinc-800 text-yellow-500 focus:ring-yellow-500"
-                />
-                <span className="text-sm">Xuất bản ngay</span>
+                <div>
+                  <span className="text-sm font-medium">Nội dung VIP</span>
+                  <p className="text-xs text-gray-400">Chỉ người dùng VIP mới xem được</p>
+                </div>
               </label>
             </div>
           </div>

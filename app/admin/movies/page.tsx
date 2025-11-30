@@ -1,30 +1,40 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase, type MovieWithGenres, type Genre } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Eye, EyeOff, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Search, Crown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+type Movie = {
+  id: string;
+  title: string;
+  description: string | null;
+  poster: string | null;
+  video_url: string | null;
+  is_vip: boolean;
+  difficulty_level: string | null;
+  created_at: string;
+};
+
 export default function AdminMoviesPage() {
-  const [movies, setMovies] = useState<MovieWithGenres[]>([]);
-  const [genres, setGenres] = useState<Genre[]>([]);
+  const supabase = createClient();
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "movie" | "series">("all");
-  const [filterPublished, setFilterPublished] = useState<"all" | "published" | "draft">("all");
+  const [filterDifficulty, setFilterDifficulty] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
+  const [filterVIP, setFilterVIP] = useState<"all" | "vip" | "free">("all");
 
   useEffect(() => {
     fetchMovies();
-    fetchGenres();
   }, []);
 
   const fetchMovies = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("movies_with_genres")
+        .from("movies")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -34,20 +44,6 @@ export default function AdminMoviesPage() {
       console.error("Error fetching movies:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchGenres = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("genres")
-        .select("*")
-        .order("name");
-
-      if (error) throw error;
-      setGenres(data || []);
-    } catch (error) {
-      console.error("Error fetching genres:", error);
     }
   };
 
@@ -67,31 +63,30 @@ export default function AdminMoviesPage() {
     }
   };
 
-  const togglePublished = async (id: string, currentStatus: boolean) => {
+  const toggleVIP = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
         .from("movies")
-        .update({ is_published: !currentStatus })
+        .update({ is_vip: !currentStatus })
         .eq("id", id);
 
       if (error) throw error;
 
       fetchMovies();
     } catch (error) {
-      console.error("Error toggling published status:", error);
-      alert("Lỗi khi cập nhật trạng thái!");
+      console.error("Error toggling VIP status:", error);
+      alert("Lỗi khi cập nhật trạng thái VIP!");
     }
   };
 
   const filteredMovies = movies.filter((movie) => {
-    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      movie.original_title?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = filterType === "all" || movie.type === filterType;
-    const matchesPublished = filterPublished === "all" ||
-      (filterPublished === "published" && movie.is_published) ||
-      (filterPublished === "draft" && !movie.is_published);
+    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDifficulty = filterDifficulty === "all" || movie.difficulty_level === filterDifficulty;
+    const matchesVIP = filterVIP === "all" ||
+      (filterVIP === "vip" && movie.is_vip) ||
+      (filterVIP === "free" && !movie.is_vip);
 
-    return matchesSearch && matchesType && matchesPublished;
+    return matchesSearch && matchesDifficulty && matchesVIP;
   });
 
   if (loading) {
@@ -135,26 +130,27 @@ export default function AdminMoviesPage() {
               </div>
             </div>
 
-            {/* Type Filter */}
+            {/* Difficulty Filter */}
             <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
+              value={filterDifficulty}
+              onChange={(e) => setFilterDifficulty(e.target.value as any)}
               className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:outline-none focus:border-yellow-500"
             >
-              <option value="all">Tất cả loại</option>
-              <option value="movie">Phim lẻ</option>
-              <option value="series">Phim bộ</option>
+              <option value="all">Tất cả độ khó</option>
+              <option value="beginner">Dễ</option>
+              <option value="intermediate">Trung bình</option>
+              <option value="advanced">Khó</option>
             </select>
 
-            {/* Published Filter */}
+            {/* VIP Filter */}
             <select
-              value={filterPublished}
-              onChange={(e) => setFilterPublished(e.target.value as any)}
+              value={filterVIP}
+              onChange={(e) => setFilterVIP(e.target.value as any)}
               className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:outline-none focus:border-yellow-500"
             >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="published">Đã xuất bản</option>
-              <option value="draft">Bản nháp</option>
+              <option value="all">Tất cả</option>
+              <option value="vip">VIP</option>
+              <option value="free">Miễn phí</option>
             </select>
           </div>
         </div>
@@ -166,18 +162,16 @@ export default function AdminMoviesPage() {
               <thead className="bg-zinc-800">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Phim</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Loại</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Thể loại</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Năm</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Độ khó</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Trạng thái</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Video URL</th>
                   <th className="px-6 py-4 text-right text-sm font-semibold">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
                 {filteredMovies.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                    <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
                       Không tìm thấy phim nào
                     </td>
                   </tr>
@@ -187,9 +181,9 @@ export default function AdminMoviesPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="relative w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-zinc-800">
-                            {movie.poster_url ? (
+                            {movie.poster ? (
                               <Image
-                                src={movie.poster_url}
+                                src={movie.poster}
                                 alt={movie.title}
                                 fill
                                 className="object-cover"
@@ -202,36 +196,14 @@ export default function AdminMoviesPage() {
                           </div>
                           <div>
                             <div className="font-semibold text-white">{movie.title}</div>
-                            {movie.original_title && (
-                              <div className="text-sm text-gray-400">{movie.original_title}</div>
+                            {movie.description && (
+                              <div className="text-sm text-gray-400 line-clamp-2 mt-1">
+                                {movie.description}
+                              </div>
                             )}
-                            <div className="text-xs text-gray-500 mt-1">{movie.slug}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${movie.type === 'movie'
-                            ? 'bg-blue-500/20 text-blue-400'
-                            : 'bg-purple-500/20 text-purple-400'
-                          }`}>
-                          {movie.type === 'movie' ? 'Phim lẻ' : 'Phim bộ'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1">
-                          {movie.genres?.slice(0, 2).map((genre, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-zinc-700 rounded text-xs">
-                              {genre}
-                            </span>
-                          ))}
-                          {movie.genres && movie.genres.length > 2 && (
-                            <span className="px-2 py-1 bg-zinc-700 rounded text-xs">
-                              +{movie.genres.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-gray-300">{movie.release_year || '-'}</td>
                       <td className="px-6 py-4">
                         {movie.difficulty_level && (
                           <span className={`px-2 py-1 rounded text-xs font-medium ${movie.difficulty_level === 'beginner'
@@ -247,22 +219,27 @@ export default function AdminMoviesPage() {
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => togglePublished(movie.id, movie.is_published)}
-                          className={`flex items-center gap-2 px-3 py-1 rounded text-sm font-medium transition-colors ${movie.is_published
-                              ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                          onClick={() => toggleVIP(movie.id, movie.is_vip)}
+                          className={`flex items-center gap-2 px-3 py-1 rounded text-sm font-medium transition-colors ${movie.is_vip
+                              ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
                               : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
                             }`}
                         >
-                          {movie.is_published ? (
+                          {movie.is_vip ? (
                             <>
-                              <Eye className="h-4 w-4" /> Công khai
+                              <Crown className="h-4 w-4" /> VIP
                             </>
                           ) : (
                             <>
-                              <EyeOff className="h-4 w-4" /> Nháp
+                              Miễn phí
                             </>
                           )}
                         </button>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-400 max-w-xs truncate">
+                          {movie.video_url || '-'}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
