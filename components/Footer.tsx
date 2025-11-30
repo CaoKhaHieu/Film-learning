@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="bg-black/90 text-gray-400 py-12 px-4 md:px-16 border-t border-gray-800 mt-12">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-          <h3 className="text-white font-bold text-lg mb-4">RaPhim</h3>
+          <h3 className="text-white font-bold text-lg mb-4">Film Learning</h3>
           <p className="text-sm leading-relaxed">
             Trải nghiệm xem phim đỉnh cao với hàng ngàn bộ phim bom tấn, phim bộ và chương trình truyền hình hấp dẫn.
           </p>
@@ -48,7 +48,7 @@ export function Footer() {
       </div>
 
       <div className="text-center text-xs mt-12 pt-8 border-t border-gray-800">
-        &copy; 2024 RaPhim. All rights reserved.
+        &copy; 2024 Film Learning. All rights reserved.
       </div>
     </footer>
   );

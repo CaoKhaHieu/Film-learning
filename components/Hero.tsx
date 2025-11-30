@@ -20,13 +20,6 @@ export function Hero() {
         <h1 className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter">
           CONAN
         </h1>
-        <div className="flex items-center gap-3 text-sm md:text-base text-gray-300 mb-6 font-medium">
-          <span className="text-green-400">98% Match</span>
-          <span>2024</span>
-          <span className="border border-gray-500 px-1 rounded text-xs">13+</span>
-          <span>2h 30m</span>
-          <span className="border border-gray-500 px-1 rounded text-xs">HD</span>
-        </div>
 
         <p className="text-gray-200 text-sm md:text-lg mb-8 line-clamp-3 md:line-clamp-none max-w-xl">
           Thám tử lừng danh Conan phải đối mặt với vụ án khó khăn nhất từ trước đến nay.
@@ -39,9 +32,6 @@ export function Hero() {
               <Play className="mr-2 h-5 w-5 fill-black" /> Xem Ngay
             </Button>
           </Link>
-          <Button variant="secondary" className="bg-gray-600/80 hover:bg-gray-600 text-white h-12 px-6 text-lg rounded-md backdrop-blur-sm">
-            <Plus className="mr-2 h-5 w-5" /> Danh Sách
-          </Button>
         </div>
       </div>
     </div>

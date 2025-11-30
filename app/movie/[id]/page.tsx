@@ -94,9 +94,6 @@ export default function MovieDetailPage() {
                   <Play className="mr-2 h-5 w-5 fill-black" /> Xem Phim
                 </Button>
               </Link>
-              <Button variant="secondary" className="bg-gray-600/80 hover:bg-gray-600 text-white h-12 px-6 text-lg rounded-md backdrop-blur-sm">
-                <Plus className="mr-2 h-5 w-5" /> Danh Sách
-              </Button>
               <Button variant="ghost" size="icon" className="rounded-full bg-gray-800/50 hover:bg-gray-700 text-white h-12 w-12 border border-gray-600">
                 <ThumbsUp className="h-5 w-5" />
               </Button>

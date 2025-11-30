@@ -15,7 +15,7 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: "RaPhim - Xem phim online chất lượng cao",
+  title: "Film Learning - Xem phim online chất lượng cao",
   description: "Trải nghiệm xem phim đỉnh cao với hàng ngàn bộ phim bom tấn",
 };
 

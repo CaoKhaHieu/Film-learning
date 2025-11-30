@@ -30,9 +30,9 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
               <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-black text-black">R</span>
+                <span className="text-2xl font-black text-black">F</span>
               </div>
-              <h1 className="text-3xl font-black text-white">RaPhim</h1>
+              <h1 className="text-3xl font-black text-white">Film Learning</h1>
             </div>
             <p className="text-gray-400 text-sm">Admin Panel</p>
           </div>
