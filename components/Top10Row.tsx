@@ -23,7 +23,7 @@ export function Top10Row({ title, movies }: Top10RowProps) {
 
       <div className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x justify-center md:justify-start">
         {movies.map((movie, index) => (
-          <Link href={`/movie/${movie.id}`} key={movie.id} className="relative flex-shrink-0 w-[160px] md:w-[220px] snap-start group cursor-pointer">
+          <Link href={`/movie/${movie.id}`} key={movie.id} className="relative shrink-0 w-40 md:w-[220px] snap-start group cursor-pointer">
             {/* Rank Number */}
             <div className="absolute -left-4 -bottom-4 z-10 text-[8rem] font-black text-transparent leading-none"
               style={{

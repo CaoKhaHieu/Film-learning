@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { createClient, type Movie } from '@/lib/supabase-server';
+import { getAllMoviesByDifficulty } from '@/service/movie';
 import Link from "next/link";
 import Image from "next/image";
 import { Play } from "lucide-react";
@@ -11,16 +11,8 @@ export const metadata = {
 };
 
 export default async function AdvancedPage() {
-  const supabase = await createClient();
-
-  // Fetch all advanced movies
-  const { data: movies } = await supabase
-    .from('movies')
-    .select('*')
-    .eq('difficulty_level', 'advanced')
-    .order('created_at', { ascending: false });
-
-  const movieList = movies || [];
+  // Fetch all advanced movies from service
+  const movieList = await getAllMoviesByDifficulty('advanced');
 
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
@@ -41,13 +33,13 @@ export default async function AdvancedPage() {
         {/* Movies Grid */}
         {movieList.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-            {movieList.map((movie: Movie) => (
+            {movieList.map((movie) => (
               <Link
                 key={movie.id}
                 href={`/movie/${movie.id}`}
                 className="group cursor-pointer"
               >
-                <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-zinc-800 shadow-xl transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+                <div className="relative aspect-2/3 w-full overflow-hidden rounded-lg bg-zinc-800 shadow-xl transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
                   <Image
                     src={movie.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60"}
                     alt={movie.title}
@@ -56,7 +48,7 @@ export default async function AdvancedPage() {
                   />
 
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center transform scale-0 group-hover:scale-100 transition-transform duration-300">
                         <Play className="w-8 h-8 text-black fill-black ml-1" />
@@ -72,7 +64,7 @@ export default async function AdvancedPage() {
                   )}
 
                   {/* Info */}
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-linear-to-t from-black to-transparent">
                     <h3 className="text-sm font-bold text-white line-clamp-2 mb-1">
                       {movie.title}
                     </h3>

@@ -3,56 +3,23 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { MovieRow } from "@/components/MovieRow";
 import { Button } from "@/components/ui/button";
-import { Play, Plus, ThumbsUp, Share2, Volume2, Star, Calendar, Clock } from "lucide-react";
+import { Play } from "lucide-react";
 import Image from "next/image";
-import { createClient, type Movie } from '@/lib/supabase-server';
 import { notFound } from 'next/navigation';
-
+import { getMovieDetails } from '@/service/movie';
 
 export default async function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const supabase = await createClient();
   const { id } = await params;
 
-  // Fetch movie details
-  const { data: movie, error } = await supabase
-    .from('movies')
-    .select('*')
-    .eq('id', id)
-    .single();
+  // Get movie details from service
+  const movieData = await getMovieDetails(id);
 
   // If movie not found, show 404
-  if (error || !movie) {
+  if (!movieData) {
     notFound();
   }
 
-  // Fetch related movies (same difficulty level, exclude current movie)
-  const { data: relatedMoviesData } = await supabase
-    .from('movies')
-    .select('*')
-    .eq('difficulty_level', movie.difficulty_level)
-    .neq('id', id)
-    .limit(10);
-
-  // Transform related movies for MovieRow component
-  const relatedMovies = (relatedMoviesData || []).map((m: Movie) => ({
-    id: m.id,
-    title: m.title,
-    image: m.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60",
-    isNew: false,
-    quality: m.is_vip ? "VIP" : "HD",
-    year: new Date(m.created_at).getFullYear().toString(),
-  }));
-
-  // Get difficulty level label
-  const difficultyLabels: Record<string, string> = {
-    beginner: 'Cơ Bản',
-    intermediate: 'Trung Cấp',
-    advanced: 'Nâng Cao',
-  };
-
-  const difficultyLabel = movie.difficulty_level
-    ? difficultyLabels[movie.difficulty_level] || movie.difficulty_level
-    : 'Chưa xác định';
+  const { movie, relatedMovies, difficultyLabel } = movieData;
 
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white">
@@ -68,8 +35,8 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent" />
         </div>
 
         <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-12 md:pb-20">

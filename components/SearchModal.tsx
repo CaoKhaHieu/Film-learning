@@ -145,7 +145,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     className="flex items-center gap-4 p-3 hover:bg-zinc-800 rounded-lg transition-colors group"
                   >
                     {/* Poster */}
-                    <div className="relative w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-zinc-800">
+                    <div className="relative w-16 h-24 shrink-0 rounded overflow-hidden bg-zinc-800">
                       <Image
                         src={
                           movie.poster ||
@@ -185,7 +185,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     </div>
 
                     {/* Play Icon */}
-                    <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center">
                         <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                       </div>
