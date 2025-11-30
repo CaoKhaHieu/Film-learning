@@ -32,19 +32,17 @@ const top10Movies = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white pb-20">
+    <main className="min-h-screen bg-[#0f0f0f] text-white">
       <Navbar />
       <Hero />
 
       <div className="mt-[-100px] relative z-20 space-y-8">
-        <MovieRow title="Phim Hành Động Mới" movies={newActionMovies} />
-        <MovieRow title="Phim Tình Cảm Mới" movies={newRomanceMovies} />
-
         <div className="bg-gradient-to-r from-yellow-900/20 to-transparent py-4">
-          <Top10Row title="Top 10 Phim Bộ Hôm Nay" movies={top10Movies} />
+          <Top10Row title="Top 5 Phim Nên Học" movies={top10Movies} />
         </div>
-
-        <MovieRow title="Phim Hài Mới" movies={newActionMovies} />
+        <MovieRow title="Phim Cấp Độ Cơ Bản (Beginner)" movies={newActionMovies} />
+        <MovieRow title="Phim Cấp Độ Trung Cấp (Intermediate)" movies={newRomanceMovies} />
+        <MovieRow title="Phim Cấp Độ Nâng Cao (Advanced)" movies={newActionMovies} />
       </div>
 
       <Footer />
