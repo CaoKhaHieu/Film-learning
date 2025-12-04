@@ -46,6 +46,7 @@ Format file `movie-ids.txt`:
 
 Script sẽ lấy các thông tin sau từ API:
 
+- `tmdb_id` - TMDB Movie ID (unique)
 - `title` - Tên gốc (original_title)
 - `title_vi` - Tên tiếng Việt (title)
 - `release_date` - Ngày phát hành

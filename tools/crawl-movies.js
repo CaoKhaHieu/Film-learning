@@ -51,6 +51,7 @@ function transformMovieData(apiData) {
     : '';
   
   return {
+    tmdb_id: apiData.id || 0,
     title: apiData.original_title || '',
     title_vi: apiData.title || '',
     release_date: apiData.release_date || '',
@@ -70,6 +71,7 @@ function transformMovieData(apiData) {
  */
 function generateCSVRow(movieData) {
   const {
+    tmdb_id,
     title,
     title_vi,
     release_date,
@@ -87,6 +89,7 @@ function generateCSVRow(movieData) {
   const escape = (str) => `"${str.replace(/"/g, '""')}"`;
   
   return [
+    tmdb_id,
     escape(title),
     escape(title_vi),
     release_date,
@@ -133,6 +136,7 @@ async function main() {
   
   // CSV Header
   csvRows.push([
+    'tmdb_id',
     'title',
     'title_vi',
     'release_date',
