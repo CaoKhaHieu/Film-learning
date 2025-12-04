@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Search, X, Play } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "./ui/button";
 
 interface Movie {
@@ -146,13 +145,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   >
                     {/* Poster */}
                     <div className="relative w-16 h-24 shrink-0 rounded overflow-hidden bg-zinc-800">
-                      <Image
+                      <img
                         src={
                           movie.poster ||
                           "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60"
                         }
                         alt={movie.title}
-                        fill
                         className="object-cover"
                       />
                       {movie.is_vip && (

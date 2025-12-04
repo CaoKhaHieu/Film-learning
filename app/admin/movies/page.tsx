@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, Search, Crown } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 type Movie = {
   id: string;
@@ -182,10 +181,9 @@ export default function AdminMoviesPage() {
                         <div className="flex items-center gap-4">
                           <div className="relative w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-zinc-800">
                             {movie.poster ? (
-                              <Image
+                              <img
                                 src={movie.poster}
                                 alt={movie.title}
-                                fill
                                 className="object-cover"
                               />
                             ) : (
@@ -207,10 +205,10 @@ export default function AdminMoviesPage() {
                       <td className="px-6 py-4">
                         {movie.difficulty_level && (
                           <span className={`px-2 py-1 rounded text-xs font-medium ${movie.difficulty_level === 'beginner'
-                              ? 'bg-green-500/20 text-green-400'
-                              : movie.difficulty_level === 'intermediate'
-                                ? 'bg-yellow-500/20 text-yellow-400'
-                                : 'bg-red-500/20 text-red-400'
+                            ? 'bg-green-500/20 text-green-400'
+                            : movie.difficulty_level === 'intermediate'
+                              ? 'bg-yellow-500/20 text-yellow-400'
+                              : 'bg-red-500/20 text-red-400'
                             }`}>
                             {movie.difficulty_level === 'beginner' ? 'Dễ' :
                               movie.difficulty_level === 'intermediate' ? 'Trung bình' : 'Khó'}
@@ -221,8 +219,8 @@ export default function AdminMoviesPage() {
                         <button
                           onClick={() => toggleVIP(movie.id, movie.is_vip)}
                           className={`flex items-center gap-2 px-3 py-1 rounded text-sm font-medium transition-colors ${movie.is_vip
-                              ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
-                              : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
+                            ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
+                            : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
                             }`}
                         >
                           {movie.is_vip ? (

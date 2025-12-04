@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import Image from "next/image";
 
 interface Movie {
   id: string;
@@ -38,10 +36,9 @@ export function Top10Row({ title, movies }: Top10RowProps) {
             </div>
 
             <div className="relative aspect-2/3 w-full overflow-hidden rounded-lg bg-zinc-800 ml-4 shadow-xl transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2">
-              <Image
+              <img
                 src={movie.image}
                 alt={movie.title}
-                fill
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />

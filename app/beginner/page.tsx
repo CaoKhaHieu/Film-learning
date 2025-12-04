@@ -2,7 +2,6 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { getAllMoviesByDifficulty } from '@/service/movie';
 import Link from "next/link";
-import Image from "next/image";
 import { Play } from "lucide-react";
 
 export const metadata = {
@@ -40,10 +39,9 @@ export default async function BeginnerPage() {
                 className="group cursor-pointer"
               >
                 <div className="relative aspect-2/3 w-full overflow-hidden rounded-lg bg-zinc-800 shadow-xl transform transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-                  <Image
+                  <img
                     src={movie.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60"}
                     alt={movie.title}
-                    fill
                     className="object-cover"
                   />
 

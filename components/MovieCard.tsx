@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { PlayCircle } from "lucide-react";
 
 interface MovieCardProps {
@@ -17,10 +16,9 @@ export function MovieCard({ id, title, image, category, year, isNew, quality }: 
     <Link href={`/movie/${id}`}>
       <div className="group relative flex-shrink-0 w-[160px] md:w-[240px] cursor-pointer transition-transform duration-300 hover:scale-105 hover:z-10">
         <div className="relative aspect-video w-full overflow-hidden rounded-md bg-zinc-800">
-          <Image
+          <img
             src={image}
             alt={title}
-            fill
             className="object-cover transition-opacity duration-300 group-hover:opacity-80"
           />
 
