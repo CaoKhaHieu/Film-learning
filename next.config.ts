@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "upload.wikimedia.org",
       },
+      {
+        protocol: "https",
+        hostname: "substackcdn.com",
+      },
+      {
+        protocol: "https",
+        hostname: "p.10014.workers.dev",
+      },
     ],
   },
 };

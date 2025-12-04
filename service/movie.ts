@@ -1,12 +1,12 @@
 "use server";
 
 import { createClient, type Movie } from '@/lib/supabase-server';
-import { 
-  transformMovieForRow, 
-  transformMovieForTop10, 
+import {
+  transformMovieForRow,
+  transformMovieForTop10,
   getDifficultyLabel,
   type MovieRowData,
-  type Top10MovieData 
+  type Top10MovieData
 } from './movie-utils';
 
 // Service functions for movie data fetching
@@ -19,23 +19,23 @@ export async function getMoviesByDifficulty(
   limit?: number
 ): Promise<Movie[]> {
   const supabase = await createClient();
-  
+
   let query = supabase
     .from('movies')
     .select('*')
     .eq('difficulty_level', difficulty);
-    
+
   if (limit) {
     query = query.limit(limit);
   }
-  
+
   const { data, error } = await query;
-  
+
   if (error) {
     console.error(`Error fetching ${difficulty} movies:`, error);
     return [];
   }
-  
+
   return data || [];
 }
 
@@ -44,18 +44,18 @@ export async function getMoviesByDifficulty(
  */
 export async function getLatestMovies(limit: number = 10): Promise<Movie[]> {
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from('movies')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(limit);
-    
+
   if (error) {
     console.error('Error fetching latest movies:', error);
     return [];
   }
-  
+
   return data || [];
 }
 
@@ -64,18 +64,18 @@ export async function getLatestMovies(limit: number = 10): Promise<Movie[]> {
  */
 export async function getMovieById(id: string): Promise<Movie | null> {
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from('movies')
     .select('*')
     .eq('id', id)
     .single();
-    
+
   if (error) {
     console.error('Error fetching movie by ID:', error);
     return null;
   }
-  
+
   return data;
 }
 
@@ -88,21 +88,21 @@ export async function getRelatedMovies(
   limit: number = 10
 ): Promise<Movie[]> {
   if (!difficultyLevel) return [];
-  
+
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from('movies')
     .select('*')
     .eq('difficulty_level', difficultyLevel)
     .neq('id', currentMovieId)
     .limit(limit);
-    
+
   if (error) {
     console.error('Error fetching related movies:', error);
     return [];
   }
-  
+
   return data || [];
 }
 
@@ -113,18 +113,18 @@ export async function getAllMoviesByDifficulty(
   difficulty: 'beginner' | 'intermediate' | 'advanced'
 ): Promise<Movie[]> {
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from('movies')
     .select('*')
     .eq('difficulty_level', difficulty)
     .order('created_at', { ascending: false });
-    
+
   if (error) {
     console.error(`Error fetching all ${difficulty} movies:`, error);
     return [];
   }
-  
+
   return data || [];
 }
 
@@ -133,20 +133,20 @@ export async function getAllMoviesByDifficulty(
  */
 export async function searchMovies(query: string, limit: number = 10): Promise<Movie[]> {
   if (!query.trim()) return [];
-  
+
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from('movies')
     .select('*')
     .ilike('title', `%${query}%`)
     .limit(limit);
-    
+
   if (error) {
     console.error('Error searching movies:', error);
     return [];
   }
-  
+
   return data || [];
 }
 
@@ -174,16 +174,35 @@ export async function getHomepageMovies() {
  */
 export async function getMovieDetails(id: string) {
   const movie = await getMovieById(id);
-  
+
   if (!movie) {
     return null;
   }
-  
+
   const relatedMovies = await getRelatedMovies(id, movie.difficulty_level, 10);
-  
+
   return {
     movie,
     relatedMovies: relatedMovies.map(transformMovieForRow),
     difficultyLabel: getDifficultyLabel(movie.difficulty_level)
   };
+}
+
+/**
+ * Get subtitles by movie ID
+ */
+export async function getSubtitlesByMovieId(movieId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('subtitles')
+    .select('*')
+    .eq('movie_id', movieId);
+
+  if (error) {
+    console.error('Error fetching subtitles:', error);
+    return [];
+  }
+
+  return data || [];
 }

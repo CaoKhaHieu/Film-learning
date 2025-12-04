@@ -26,7 +26,7 @@ if (!supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const csvFilePath = path.join(__dirname, '../data/movies_import.csv');
+const csvFilePath = path.join(__dirname, '../data/data.csv');
 const movies = [];
 
 console.log('Reading CSV file...');
