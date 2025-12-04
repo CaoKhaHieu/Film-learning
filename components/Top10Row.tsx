@@ -39,7 +39,7 @@ export function Top10Row({ title, movies }: Top10RowProps) {
               <img
                 src={movie.image}
                 alt={movie.title}
-                className="object-cover"
+                className="object-cover h-full w-full"
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-3">

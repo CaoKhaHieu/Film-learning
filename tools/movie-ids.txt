@@ -1,0 +1,23 @@
+# Popular Movie IDs for testing
+# One ID per line, lines starting with # are comments
+
+# The Conjuring Universe
+1038392
+
+# Classic Movies
+278     # The Shawshank Redemption
+238     # The Godfather
+155     # The Dark Knight
+680     # Pulp Fiction
+550     # Fight Club
+
+# Sci-Fi Favorites
+27205   # Inception
+603     # The Matrix
+157336  # Interstellar
+13      # Forrest Gump
+
+# Recent Popular
+502356  # The Super Mario Bros. Movie
+569094  # Spider-Man: Across the Spider-Verse
+872585  # Oppenheimer

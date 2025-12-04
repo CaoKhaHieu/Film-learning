@@ -28,9 +28,9 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
       <div className="relative w-full h-[70vh] md:h-[85vh]">
         <div className="absolute inset-0">
           <img
-            src={movie.poster || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop"}
+            src={movie.poster || ''}
             alt={movie.title}
-            className="object-cover"
+            className="object-cover w-full h-full"
           />
           <div className="absolute inset-0 bg-linear-to-t from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent" />
           <div className="absolute inset-0 bg-linear-to-r from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent" />
