@@ -42,6 +42,41 @@ Format file `movie-ids.txt`:
 680
 ```
 
+## Tự Động Lấy Movie IDs
+
+### Discover Movies từ TMDB
+
+Sử dụng script `discover-movies.js` để tự động lấy danh sách movie IDs phổ biến:
+
+```bash
+# Lấy 1 trang (20 movies)
+node tools/discover-movies.js 1
+
+# Lấy 5 trang (100 movies)
+node tools/discover-movies.js 5
+
+# Lấy 10 trang (200 movies)
+node tools/discover-movies.js 10
+```
+
+Script sẽ:
+- Fetch movies từ TMDB discover API
+- Lưu IDs vào `tools/movie-ids.txt`
+- Hiển thị thống kê và top rated movies
+- Sẵn sàng để crawl với `crawl-movies-batch.js`
+
+### Workflow Hoàn Chỉnh
+
+```bash
+# Bước 1: Discover movies
+node tools/discover-movies.js 5
+
+# Bước 2: Crawl movie data
+node tools/crawl-movies-batch.js tools/movie-ids.txt
+
+# Bước 3: Import CSV vào Supabase
+```
+
 ## Dữ liệu được lấy
 
 Script sẽ lấy các thông tin sau từ API:
