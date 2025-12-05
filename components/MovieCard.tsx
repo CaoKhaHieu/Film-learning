@@ -48,7 +48,7 @@ export function MovieCard({ id, title, title_vi, image, category, year, quality,
           </h3>
           <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
             {title_vi && (
-              <p className="text-xs text-slate-500 truncate font-medium">{title}</p>
+              <p className="text-xs text-slate-500 truncate font-medium">{title_vi}</p>
             )}
             {
               year && (
