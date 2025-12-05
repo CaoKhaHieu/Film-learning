@@ -8,7 +8,10 @@ import Link from "next/link";
 
 type Movie = {
   id: string;
+  tmdb_id: number | null;
   title: string;
+  title_vi: string | null;
+  overview: string | null;
   description: string | null;
   poster: string | null;
   video_url: string | null;
@@ -79,7 +82,10 @@ export default function AdminMoviesPage() {
   };
 
   const filteredMovies = movies.filter((movie) => {
-    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (movie.title_vi && movie.title_vi.toLowerCase().includes(searchQuery.toLowerCase()));
+
     const matchesDifficulty = filterDifficulty === "all" || movie.difficulty_level === filterDifficulty;
     const matchesVIP = filterVIP === "all" ||
       (filterVIP === "vip" && movie.is_vip) ||
@@ -121,7 +127,7 @@ export default function AdminMoviesPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Tìm kiếm phim..."
+                  placeholder="Tìm kiếm phim (Tên Anh/Việt)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500"
@@ -179,24 +185,32 @@ export default function AdminMoviesPage() {
                     <tr key={movie.id} className="hover:bg-zinc-800/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          <div className="relative w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-zinc-800">
+                          <div className="relative w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-zinc-800 group">
                             {movie.poster ? (
                               <img
                                 src={movie.poster}
                                 alt={movie.title}
-                                className="object-cover"
+                                className="object-cover w-full h-full"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-600">
                                 No Image
                               </div>
                             )}
+                            {movie.tmdb_id && (
+                              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-[10px] text-center text-gray-300 py-0.5">
+                                ID: {movie.tmdb_id}
+                              </div>
+                            )}
                           </div>
                           <div>
-                            <div className="font-semibold text-white">{movie.title}</div>
-                            {movie.description && (
-                              <div className="text-sm text-gray-400 line-clamp-2 mt-1">
-                                {movie.description}
+                            <div className="font-semibold text-white">{movie.title_vi || movie.title}</div>
+                            {movie.title_vi && (
+                              <div className="text-xs text-gray-400">{movie.title}</div>
+                            )}
+                            {(movie.overview || movie.description) && (
+                              <div className="text-sm text-gray-500 line-clamp-1 mt-1 max-w-xs">
+                                {movie.overview || movie.description}
                               </div>
                             )}
                           </div>

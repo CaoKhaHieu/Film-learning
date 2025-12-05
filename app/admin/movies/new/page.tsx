@@ -13,9 +13,16 @@ export default function NewMoviePage() {
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
+    tmdb_id: "",
     title: "",
-    description: "",
+    title_vi: "",
+    overview: "",
     poster: "",
+    background_image: "",
+    release_date: "",
+    runtime: "",
+    vote_average: "",
+    genres: "",
     video_url: "",
     is_vip: false,
     difficulty_level: "intermediate" as "beginner" | "intermediate" | "advanced",
@@ -29,10 +36,20 @@ export default function NewMoviePage() {
     setLoading(true);
 
     try {
+      // Prepare data
+      const movieData = {
+        ...formData,
+        tmdb_id: formData.tmdb_id ? parseInt(formData.tmdb_id) : null,
+        runtime: formData.runtime ? parseInt(formData.runtime) : null,
+        vote_average: formData.vote_average ? parseFloat(formData.vote_average) : null,
+        // Map overview to description for backward compatibility if needed, or just use overview
+        description: formData.overview,
+      };
+
       // Insert movie
       const { data: movie, error: movieError } = await supabase
         .from("movies")
-        .insert([formData])
+        .insert([movieData])
         .select()
         .single();
 
@@ -97,28 +114,71 @@ export default function NewMoviePage() {
               Thông Tin Cơ Bản
             </h2>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Tên phim <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                placeholder="Thám Tử Lừng Danh Conan"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Tên phim (Gốc/Anh) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                  placeholder="The Godfather"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Tên phim (Việt)
+                </label>
+                <input
+                  type="text"
+                  value={formData.title_vi}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title_vi: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                  placeholder="Bố Già"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">TMDB ID</label>
+                <input
+                  type="number"
+                  value={formData.tmdb_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tmdb_id: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                  placeholder="238"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Thể loại</label>
+                <input
+                  type="text"
+                  value={formData.genres}
+                  onChange={(e) =>
+                    setFormData({ ...formData, genres: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                  placeholder="Crime, Drama"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Mô tả</label>
+              <label className="block text-sm font-medium mb-2">Mô tả (Overview)</label>
               <textarea
-                value={formData.description}
+                value={formData.overview}
                 onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+                  setFormData({ ...formData, overview: e.target.value })
                 }
                 rows={4}
                 className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
@@ -126,19 +186,62 @@ export default function NewMoviePage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Độ khó</label>
-              <select
-                value={formData.difficulty_level}
-                onChange={(e) =>
-                  setFormData({ ...formData, difficulty_level: e.target.value as any })
-                }
-                className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-              >
-                <option value="beginner">Dễ (Beginner)</option>
-                <option value="intermediate">Trung bình (Intermediate)</option>
-                <option value="advanced">Khó (Advanced)</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Độ khó</label>
+                <select
+                  value={formData.difficulty_level}
+                  onChange={(e) =>
+                    setFormData({ ...formData, difficulty_level: e.target.value as any })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                >
+                  <option value="beginner">Dễ (Beginner)</option>
+                  <option value="intermediate">Trung bình (Intermediate)</option>
+                  <option value="advanced">Khó (Advanced)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Ngày phát hành</label>
+                <input
+                  type="date"
+                  value={formData.release_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, release_date: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Thời lượng (phút)</label>
+                <input
+                  type="number"
+                  value={formData.runtime}
+                  onChange={(e) =>
+                    setFormData({ ...formData, runtime: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                  placeholder="175"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Điểm đánh giá (0-10)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="10"
+                  value={formData.vote_average}
+                  onChange={(e) =>
+                    setFormData({ ...formData, vote_average: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                  placeholder="8.7"
+                />
+              </div>
             </div>
           </div>
 
@@ -157,9 +260,21 @@ export default function NewMoviePage() {
                   setFormData({ ...formData, poster: e.target.value })
                 }
                 className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                placeholder="https://image.example.com/poster.jpg"
+                placeholder="https://image.tmdb.org/t/p/original/..."
               />
-              <p className="text-xs text-gray-500 mt-1">URL hình ảnh poster của phim</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">URL Ảnh nền (Background)</label>
+              <input
+                type="url"
+                value={formData.background_image}
+                onChange={(e) =>
+                  setFormData({ ...formData, background_image: e.target.value })
+                }
+                className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                placeholder="https://image.tmdb.org/t/p/original/..."
+              />
             </div>
 
             <div>
@@ -191,7 +306,6 @@ export default function NewMoviePage() {
                     className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
                     placeholder="https://example.com/subtitle-en.vtt"
                   />
-                  <p className="text-xs text-gray-500 mt-1">URL file phụ đề tiếng Anh (.vtt hoặc .srt)</p>
                 </div>
 
                 <div>
@@ -205,7 +319,6 @@ export default function NewMoviePage() {
                     className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
                     placeholder="https://example.com/subtitle-vi.vtt"
                   />
-                  <p className="text-xs text-gray-500 mt-1">URL file phụ đề tiếng Việt (.vtt hoặc .srt)</p>
                 </div>
               </div>
             </div>

@@ -9,9 +9,17 @@ import Link from "next/link";
 
 type Movie = {
   id: string;
+  tmdb_id: number | null;
   title: string;
+  title_vi: string | null;
+  overview: string | null;
   description: string | null;
   poster: string | null;
+  background_image: string | null;
+  release_date: string | null;
+  runtime: number | null;
+  vote_average: number | null;
+  genres: string | null;
   video_url: string | null;
   is_vip: boolean;
   difficulty_level: string | null;
@@ -36,6 +44,8 @@ export default function EditMoviePage() {
   }, [movieId]);
 
   const fetchMovie = async () => {
+    if (!movieId) return;
+
     try {
       const { data: movie, error: movieError } = await supabase
         .from("movies")
@@ -43,27 +53,37 @@ export default function EditMoviePage() {
         .eq("id", movieId)
         .single();
 
-      if (movieError) throw movieError;
+      if (movieError) {
+        console.error("Supabase movie fetch error:", movieError);
+        throw new Error(`Lỗi tải thông tin phim: ${movieError.message}`);
+      }
+
+      if (!movie) {
+        throw new Error("Không tìm thấy phim (data is null)");
+      }
+
       setFormData(movie);
 
-      // Fetch subtitles
+      // Fetch subtitles (Non-blocking)
       const { data: subtitles, error: subtitlesError } = await supabase
         .from("subtitles")
         .select("*")
         .eq("movie_id", movieId);
 
-      if (subtitlesError) throw subtitlesError;
+      if (subtitlesError) {
+        console.warn("Error fetching subtitles (ignoring):", subtitlesError);
+      } else {
+        // Set subtitle URLs
+        const enSubtitle = subtitles?.find((s) => s.language === "en");
+        const viSubtitle = subtitles?.find((s) => s.language === "vi");
 
-      // Set subtitle URLs
-      const enSubtitle = subtitles?.find((s) => s.language === "en");
-      const viSubtitle = subtitles?.find((s) => s.language === "vi");
-
-      if (enSubtitle) setSubtitleEnUrl(enSubtitle.url || "");
-      if (viSubtitle) setSubtitleViUrl(viSubtitle.url || "");
-    } catch (error) {
+        if (enSubtitle) setSubtitleEnUrl(enSubtitle.url || "");
+        if (viSubtitle) setSubtitleViUrl(viSubtitle.url || "");
+      }
+    } catch (error: any) {
       console.error("Error fetching movie:", error);
-      alert("Không tìm thấy phim!");
-      router.push("/admin/movies");
+      alert(error.message || "Đã có lỗi xảy ra khi tải phim!");
+      // router.push("/admin/movies"); // Comment out to debug
     } finally {
       setLoading(false);
     }
@@ -74,10 +94,12 @@ export default function EditMoviePage() {
     setSaving(true);
 
     try {
-      // Update movie
+      // Update movie - Only update video_url as requested
       const { error: movieError } = await supabase
         .from("movies")
-        .update(formData)
+        .update({
+          video_url: formData.video_url
+        })
         .eq("id", movieId);
 
       if (movieError) throw movieError;
@@ -139,7 +161,7 @@ export default function EditMoviePage() {
           </Link>
           <div>
             <h1 className="text-4xl font-bold">Chỉnh Sửa Phim</h1>
-            <p className="text-gray-400 mt-1">{formData.title}</p>
+            <p className="text-gray-400 mt-1">{formData.title_vi || formData.title}</p>
           </div>
         </div>
 
@@ -151,46 +173,127 @@ export default function EditMoviePage() {
               Thông Tin Cơ Bản
             </h2>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Tên phim <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.title || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Tên phim (Gốc/Anh) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Tên phim (Việt)
+                </label>
+                <input
+                  type="text"
+                  value={formData.title_vi || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title_vi: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">TMDB ID</label>
+                <input
+                  type="number"
+                  value={formData.tmdb_id || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tmdb_id: e.target.value ? parseInt(e.target.value) : null })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Thể loại</label>
+                <input
+                  type="text"
+                  value={formData.genres || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, genres: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Mô tả</label>
+              <label className="block text-sm font-medium mb-2">Mô tả (Overview)</label>
               <textarea
-                value={formData.description || ""}
+                value={formData.overview || formData.description || ""}
                 onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+                  setFormData({ ...formData, overview: e.target.value })
                 }
                 rows={4}
                 className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Độ khó</label>
-              <select
-                value={formData.difficulty_level || "intermediate"}
-                onChange={(e) =>
-                  setFormData({ ...formData, difficulty_level: e.target.value as any })
-                }
-                className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-              >
-                <option value="beginner">Dễ (Beginner)</option>
-                <option value="intermediate">Trung bình (Intermediate)</option>
-                <option value="advanced">Khó (Advanced)</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Độ khó</label>
+                <select
+                  value={formData.difficulty_level || "intermediate"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, difficulty_level: e.target.value as any })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                >
+                  <option value="beginner">Dễ (Beginner)</option>
+                  <option value="intermediate">Trung bình (Intermediate)</option>
+                  <option value="advanced">Khó (Advanced)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Ngày phát hành</label>
+                <input
+                  type="date"
+                  value={formData.release_date || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, release_date: e.target.value })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Thời lượng (phút)</label>
+                <input
+                  type="number"
+                  value={formData.runtime || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, runtime: e.target.value ? parseInt(e.target.value) : null })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Điểm đánh giá (0-10)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="10"
+                  value={formData.vote_average || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, vote_average: e.target.value ? parseFloat(e.target.value) : null })
+                  }
+                  className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                />
+              </div>
             </div>
           </div>
 
@@ -209,9 +312,21 @@ export default function EditMoviePage() {
                   setFormData({ ...formData, poster: e.target.value })
                 }
                 className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
-                placeholder="https://image.example.com/poster.jpg"
+                placeholder="https://image.tmdb.org/t/p/original/..."
               />
-              <p className="text-xs text-gray-500 mt-1">URL hình ảnh poster của phim</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">URL Ảnh nền (Background)</label>
+              <input
+                type="url"
+                value={formData.background_image || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, background_image: e.target.value })
+                }
+                className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
+                placeholder="https://image.tmdb.org/t/p/original/..."
+              />
             </div>
 
             <div>
@@ -243,7 +358,6 @@ export default function EditMoviePage() {
                     className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
                     placeholder="https://example.com/subtitle-en.vtt"
                   />
-                  <p className="text-xs text-gray-500 mt-1">URL file phụ đề tiếng Anh (.vtt hoặc .srt)</p>
                 </div>
 
                 <div>
@@ -257,7 +371,6 @@ export default function EditMoviePage() {
                     className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md focus:outline-none focus:border-yellow-500"
                     placeholder="https://example.com/subtitle-vi.vtt"
                   />
-                  <p className="text-xs text-gray-500 mt-1">URL file phụ đề tiếng Việt (.vtt hoặc .srt)</p>
                 </div>
               </div>
             </div>
