@@ -113,10 +113,11 @@ export function Navbar() {
             </span>
           </div>
         </Link>
-        <div className="hidden md:flex items-center gap-6 text-sm font-bold text-slate-600 transition-colors">
-          <Link href="/beginner" className="hover:text-slate-900 transition-colors">Cơ Bản</Link>
-          <Link href="/intermediate" className="hover:text-slate-900 transition-colors">Trung Cấp</Link>
-          <Link href="/advanced" className="hover:text-slate-900 transition-colors">Nâng Cao</Link>
+        <div className={`hidden md:flex items-center gap-6 text-sm font-bold transition-colors ${isScrolled ? "text-slate-600" : "text-white/90"
+          }`}>
+          <Link href="/beginner" className="hover:text-yellow-500 transition-colors">Cơ Bản</Link>
+          <Link href="/intermediate" className="hover:text-yellow-500 transition-colors">Trung Cấp</Link>
+          <Link href="/advanced" className="hover:text-yellow-500 transition-colors">Nâng Cao</Link>
         </div>
       </div>
 
@@ -124,7 +125,10 @@ export function Navbar() {
         <Button
           variant="ghost"
           size="icon"
-          className="bg-transparent hover:scale-110 hover:bg-slate-100 transition-all text-slate-700"
+          className={`transition-all hover:scale-110 ${isScrolled
+              ? "text-slate-700 hover:bg-slate-100"
+              : "text-white/90 hover:bg-white/10"
+            }`}
           onClick={() => setShowSearch(true)}
         >
           <Search className="h-5 w-5" />
