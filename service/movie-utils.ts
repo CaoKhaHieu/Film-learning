@@ -6,7 +6,7 @@ export interface MovieRowData {
   title: string;
   title_vi: string | null;
   image: string;
-  isNew: boolean;
+  background_image: string;
   quality: string;
   year: string;
 }
@@ -30,7 +30,7 @@ export function transformMovieForRow(movie: Movie): MovieRowData {
     title: movie.title,
     title_vi: movie.title_vi,
     image: movie.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60",
-    isNew: false,
+    background_image: movie.background_image || movie.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60",
     quality: movie.is_vip ? "VIP" : "HD",
     year: year,
   };

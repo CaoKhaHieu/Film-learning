@@ -8,14 +8,15 @@ import { getHomepageMovies } from '@/service/movie';
 export default async function Home() {
   // Get all homepage data from service
   const { beginnerMovies, intermediateMovies, advancedMovies, topMovies } = await getHomepageMovies();
+  console.log(beginnerMovies);
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
       <Navbar />
       <Hero />
 
       <div className="mt-[-100px] relative z-20 space-y-8">
-        <div className="bg-linear-to-r from-yellow-900/20 to-transparent py-4">
+        <div className="bg-linear-to-r from-yellow-100/80 to-transparent py-4">
           <Top10Row title="Top 5 Phim Nên Học" movies={topMovies} />
         </div>
         <MovieRow title="Phim Cấp Độ Cơ Bản (Beginner)" movies={beginnerMovies} />

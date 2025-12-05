@@ -22,24 +22,24 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-zinc-900 rounded-2xl p-8 shadow-2xl border border-zinc-800">
+        <div className="bg-white rounded-2xl p-8 shadow-2xl border border-slate-100">
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-black text-black">F</span>
+              <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/30">
+                <span className="text-2xl font-black text-white">F</span>
               </div>
-              <h1 className="text-3xl font-black text-white">Film Learning</h1>
+              <h1 className="text-3xl font-black text-slate-900">Film Learning</h1>
             </div>
-            <p className="text-gray-400 text-sm">Admin Panel</p>
+            <p className="text-slate-500 text-sm font-medium">Admin Panel</p>
           </div>
 
           {/* Title */}
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white mb-2">Đăng Nhập</h2>
-            <p className="text-gray-400 text-sm">
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Đăng Nhập</h2>
+            <p className="text-slate-500 text-sm">
               Chỉ dành cho quản trị viên
             </p>
           </div>
@@ -48,7 +48,7 @@ export default function LoginForm() {
           <Button
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full h-12 bg-white hover:bg-gray-100 text-black font-semibold rounded-lg flex items-center justify-center gap-3 transition-all"
+            className="w-full h-12 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-lg flex items-center justify-center gap-3 transition-all border border-slate-200 shadow-sm hover:shadow-md"
           >
             {loading ? (
               <span>Đang đăng nhập...</span>
@@ -78,8 +78,8 @@ export default function LoginForm() {
           </Button>
 
           {/* Info */}
-          <div className="mt-8 p-4 bg-zinc-800/50 rounded-lg border border-zinc-700">
-            <p className="text-xs text-gray-400 text-center">
+          <div className="mt-8 p-4 bg-slate-50 rounded-lg border border-slate-100">
+            <p className="text-xs text-slate-500 text-center">
               ⚠️ Chỉ tài khoản Google được phê duyệt mới có thể truy cập trang quản trị
             </p>
           </div>
@@ -89,7 +89,7 @@ export default function LoginForm() {
         <div className="text-center mt-6">
           <a
             href="/"
-            className="text-sm text-gray-400 hover:text-yellow-500 transition-colors"
+            className="text-sm text-slate-500 hover:text-yellow-600 transition-colors font-medium"
           >
             ← Quay lại trang chủ
           </a>

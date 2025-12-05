@@ -98,25 +98,25 @@ export function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 md:px-8 transition-all duration-300 ${isScrolled
-        ? "bg-black/80 backdrop-blur-md shadow-lg"
-        : "bg-linear-to-b from-black/80 to-transparent"
+        ? "bg-white/90 backdrop-blur-md shadow-sm py-2"
+        : "bg-transparent"
         }`}
     >
       <div className="flex items-center gap-8">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="relative">
-            <span className="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-linear-to-r from-yellow-400 via-orange-500 to-yellow-400 bg-size-[200%_auto] animate-shimmer">
+            <span className="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-500 bg-size-[200%_auto] animate-shimmer">
               FILM LEARNING
             </span>
-            <span className="absolute top-0 left-0 text-2xl font-black tracking-tighter text-yellow-500/50 blur-sm animate-pulse">
+            <span className="absolute top-0 left-0 text-2xl font-black tracking-tighter text-yellow-500/30 blur-sm animate-pulse">
               FILM LEARNING
             </span>
           </div>
         </Link>
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
-          <Link href="/beginner" className="hover:text-white transition-colors">Cơ Bản</Link>
-          <Link href="/intermediate" className="hover:text-white transition-colors">Trung Cấp</Link>
-          <Link href="/advanced" className="hover:text-white transition-colors">Nâng Cao</Link>
+        <div className="hidden md:flex items-center gap-6 text-sm font-bold text-slate-600 transition-colors">
+          <Link href="/beginner" className="hover:text-slate-900 transition-colors">Cơ Bản</Link>
+          <Link href="/intermediate" className="hover:text-slate-900 transition-colors">Trung Cấp</Link>
+          <Link href="/advanced" className="hover:text-slate-900 transition-colors">Nâng Cao</Link>
         </div>
       </div>
 
@@ -124,10 +124,10 @@ export function Navbar() {
         <Button
           variant="ghost"
           size="icon"
-          className="text-white bg-transparent hover:scale-125 hover:bg-transparent"
+          className="bg-transparent hover:scale-110 hover:bg-slate-100 transition-all text-slate-700"
           onClick={() => setShowSearch(true)}
         >
-          <Search className="h-5 w-5 text-white" />
+          <Search className="h-5 w-5" />
         </Button>
 
         {!user ? (

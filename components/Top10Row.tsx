@@ -16,7 +16,7 @@ interface Top10RowProps {
 export function Top10Row({ title, movies }: Top10RowProps) {
   return (
     <div className="py-8 px-4 md:px-12 space-y-6">
-      <h2 className="text-xl md:text-2xl font-bold text-white border-l-4 border-yellow-500 pl-3">
+      <h2 className="text-xl md:text-2xl font-bold text-slate-900 border-l-4 border-yellow-500 pl-3">
         {title}
       </h2>
 
@@ -26,27 +26,27 @@ export function Top10Row({ title, movies }: Top10RowProps) {
             {/* Rank Number */}
             <div className="absolute -left-4 -bottom-4 z-10 text-[8rem] font-black text-transparent leading-none"
               style={{
-                WebkitTextStroke: "2px #555",
+                WebkitTextStroke: "2px #94a3b8",
                 fontFamily: "Impact, sans-serif"
               }}>
               {index + 1}
             </div>
-            <div className="absolute -left-4 -bottom-4 z-20 text-[8rem] font-black text-white leading-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            <div className="absolute -left-4 -bottom-4 z-20 text-[8rem] font-black text-slate-900 leading-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{ fontFamily: "Impact, sans-serif" }}>
               {index + 1}
             </div>
 
-            <div className="relative aspect-2/3 w-full overflow-hidden rounded-lg bg-zinc-800 ml-4 shadow-xl transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2">
+            <div className="relative aspect-2/3 w-full overflow-hidden rounded-lg bg-slate-200 ml-4 shadow-xl transform transition-transform duration-300 group-hover:scale-105 group-hover:-translate-y-2">
               <img
                 src={movie.image}
                 alt={movie.title}
                 className="object-cover h-full w-full"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-3 pt-6">
                 <h3 className="text-sm font-bold text-white text-center truncate">{movie.title_vi || movie.title}</h3>
                 {movie.title_vi && (
-                  <p className="text-[10px] text-gray-400 text-center truncate">{movie.title}</p>
+                  <p className="text-[10px] text-gray-300 text-center truncate">{movie.title}</p>
                 )}
               </div>
             </div>

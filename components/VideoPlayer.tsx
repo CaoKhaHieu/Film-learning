@@ -345,38 +345,38 @@ export function VideoPlayer({ src, poster, autoPlay = false, subtitles = [], tit
 
       {/* Subtitle Sidebar */}
       <div
-        className={`bg-zinc-900 border-l border-zinc-800 transition-all duration-300 ease-in-out flex flex-col ${showSubtitleSidebar ? "w-80 translate-x-0" : "w-0 translate-x-full opacity-0"
+        className={`bg-slate-950 border-l border-slate-800 transition-all duration-300 ease-in-out flex flex-col ${showSubtitleSidebar ? "w-80 translate-x-0" : "w-0 translate-x-full opacity-0"
           }`}
         onMouseEnter={() => handleSubtitleHover(true)}
         onMouseLeave={() => handleSubtitleHover(false)}
       >
-        <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900 z-10">
-          <h3 className="text-white font-bold">Danh sách hội thoại</h3>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white" onClick={() => setShowSubtitleSidebar(false)}>
+        <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950 z-10">
+          <h3 className="text-slate-200 font-bold text-sm uppercase tracking-wider">Danh sách hội thoại</h3>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full" onClick={() => setShowSubtitleSidebar(false)}>
             <X className="w-4 h-4" />
           </Button>
         </div>
 
-        <div ref={subtitleListRef} className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+        <div ref={subtitleListRef} className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
           {subtitles.map((sub) => (
             <div
               key={sub.id}
               data-id={sub.id}
               onClick={() => handleSubtitleClick(sub.startTime)}
-              className={`p-3 rounded-lg cursor-pointer transition-all duration-200 border group/item ${currentSubtitle?.id === sub.id
-                ? "bg-yellow-500/10 border-yellow-500/50"
-                : "bg-zinc-800/50 border-transparent hover:bg-zinc-800 hover:border-zinc-700"
+              className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border group/item ${currentSubtitle?.id === sub.id
+                ? "bg-yellow-500/10 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.1)]"
+                : "bg-slate-900 border-transparent hover:bg-slate-800 hover:border-slate-700"
                 }`}
             >
-              <div className="flex justify-between items-start mb-1">
-                <span className={`text-xs font-mono ${currentSubtitle?.id === sub.id ? "text-yellow-500" : "text-gray-500 group-hover/item:text-gray-300"}`}>
+              <div className="flex justify-between items-start mb-1.5">
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${currentSubtitle?.id === sub.id ? "bg-yellow-500/20 text-yellow-500" : "bg-slate-800 text-slate-500 group-hover/item:text-slate-400"}`}>
                   {formatTime(sub.startTime)}
                 </span>
               </div>
-              <p className={`text-sm font-medium mb-1 ${currentSubtitle?.id === sub.id ? "text-yellow-400" : "text-gray-200 group-hover/item:text-white"}`}>
+              <p className={`text-sm font-medium mb-1 leading-relaxed ${currentSubtitle?.id === sub.id ? "text-yellow-400" : "text-slate-300 group-hover/item:text-white"}`}>
                 {sub.en}
               </p>
-              <p className={`text-xs ${currentSubtitle?.id === sub.id ? "text-white" : "text-gray-400 group-hover/item:text-gray-300"}`}>
+              <p className={`text-xs leading-relaxed ${currentSubtitle?.id === sub.id ? "text-slate-300" : "text-slate-500 group-hover/item:text-slate-400"}`}>
                 {sub.vi}
               </p>
             </div>

@@ -8,51 +8,47 @@ interface MovieCardProps {
   image: string;
   category?: string;
   year?: string;
-  isNew?: boolean;
   quality?: string;
+  background_image?: string;
 }
 
-export function MovieCard({ id, title, title_vi, image, category, year, isNew, quality }: MovieCardProps) {
+export function MovieCard({ id, title, title_vi, image, category, year, quality, background_image }: MovieCardProps) {
   return (
     <Link href={`/movie/${id}`}>
-      <div className="group relative flex-shrink-0 w-[160px] md:w-[240px] cursor-pointer transition-transform duration-300 hover:scale-105 hover:z-10">
-        <div className="relative aspect-video w-full overflow-hidden rounded-md bg-zinc-800">
+      <div className="group relative flex-shrink-0 w-[160px] md:w-[240px] cursor-pointer transition-all duration-300 hover:-translate-y-1">
+        <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-white shadow-md group-hover:shadow-xl transition-all duration-300 ring-1 ring-slate-900/5">
           <img
-            src={image}
+            src={background_image || image}
             alt={title}
-            className="object-cover transition-opacity duration-300 group-hover:opacity-80 w-full h-full"
+            className="object-contain transition-transform duration-500 group-hover:scale-105 w-full h-full"
           />
 
-          {/* Overlays */}
-          {isNew && (
-            <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-md">
-              Mới
-            </div>
-          )}
-
           {quality && (
-            <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm border border-white/20">
+            <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full border border-white/10">
               {quality}
             </div>
           )}
 
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <PlayCircle className="w-12 h-12 text-white fill-white/20 drop-shadow-lg" />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20 backdrop-blur-[2px]">
+            <div className="bg-white/20 backdrop-blur-md p-3 rounded-full border border-white/30 shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+              <PlayCircle className="w-8 h-8 text-white fill-white" />
+            </div>
           </div>
-
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 
-        <div className="mt-2 px-1">
-          <h3 className="text-sm md:text-base font-medium text-white truncate group-hover:text-yellow-500 transition-colors">
-            {title_vi || title}
+        <div className="mt-3 px-1 space-y-1">
+          <h3 className="text-base font-bold text-slate-800 truncate group-hover:text-yellow-600 transition-colors">
+            {title}
           </h3>
-          {title_vi && (
-            <p className="text-xs text-gray-400 truncate">{title}</p>
-          )}
-          <div className="flex items-center justify-between text-xs text-gray-400 mt-1">
-            <span>{category || "Hành động"}</span>
-            <span>{year || "2024"}</span>
+          <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+            {title_vi && (
+              <p className="text-xs text-slate-500 truncate font-medium">{title}</p>
+            )}
+            {
+              year && (
+                <span>{year}</span>
+              )
+            }
           </div>
         </div>
       </div>

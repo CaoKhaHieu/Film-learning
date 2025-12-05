@@ -21,73 +21,81 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
   const { movie, relatedMovies, difficultyLabel } = movieData;
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
       <Navbar />
 
       {/* Hero Section */}
-      <div className="relative w-full h-[70vh] md:h-[85vh]">
-        <div className="absolute inset-0">
-          <img
-            src={movie.background_image || movie.poster || ''}
-            alt={movie.title}
-            className="object-cover w-full h-full"
+      <div className="relative h-[85vh] w-full overflow-hidden bg-slate-50">
+        {/* Background Image Area */}
+        <div className="absolute inset-0 w-full h-full">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url('${movie.background_image || movie.poster || ''}')`,
+            }}
           />
-          <div className="absolute inset-0 bg-linear-to-t from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent" />
-          <div className="absolute inset-0 bg-linear-to-r from-[#0f0f0f] via-[#0f0f0f]/60 to-transparent" />
+          {/* Gradients for Light Theme blending */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-50 via-slate-50/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-slate-50/90 to-transparent" />
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-12 md:pb-20">
-          <div className="max-w-4xl space-y-6">
-            <div>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight mb-2">
-                {movie.title_vi || movie.title}
-              </h1>
-              {movie.title_vi && (
-                <h2 className="text-xl md:text-2xl font-semibold text-gray-300">
-                  {movie.title}
-                </h2>
-              )}
-            </div>
+        {/* Content Area */}
+        <div className="relative z-10 container mx-auto px-4 md:px-16 h-full flex flex-col justify-center pt-10">
+          <div className="max-w-2xl space-y-6 animate-fade-in-up">
+            {/* Main Title */}
+            <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-2">
+              {movie.title_vi || movie.title}
+            </h1>
 
-            {/* Movie Info */}
-            <div className="flex flex-wrap items-center gap-4 text-sm md:text-base">
-              <span className="px-3 py-1 bg-yellow-500/20 text-yellow-500 rounded-md font-semibold border border-yellow-500/30">
+            {/* Sub Title */}
+            {movie.title_vi && (
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-400">
+                {movie.title}
+              </h2>
+            )}
+
+            {/* Metadata Badges */}
+            <div className="flex items-center gap-4 text-sm md:text-base font-medium flex-wrap">
+              <span className="px-3 py-1 bg-yellow-400 text-slate-900 rounded-md font-bold shadow-sm">
                 {difficultyLabel}
               </span>
               {movie.is_vip && (
-                <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-md font-semibold border border-purple-500/30">
+                <span className="px-3 py-1 bg-purple-500 text-white rounded-md font-bold shadow-sm">
                   VIP
                 </span>
               )}
-              <span className="text-gray-400">
+              <span className="text-slate-600 font-semibold">
                 {movie.release_date ? new Date(movie.release_date).getFullYear() : new Date(movie.created_at).getFullYear()}
               </span>
               {movie.runtime && (
-                <span className="text-gray-400">
+                <span className="text-slate-600 font-semibold">
                   {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
                 </span>
               )}
               {movie.vote_average && (
-                <span className="text-green-400 font-bold">
+                <span className="text-green-600 font-black">
                   {movie.vote_average.toFixed(1)}
                 </span>
               )}
             </div>
 
+            {/* Genres */}
             {movie.genres && (
-              <div className="text-gray-400 text-sm">
+              <div className="text-slate-500 font-medium">
                 {movie.genres}
               </div>
             )}
 
-            <p className="text-gray-200 text-base md:text-lg line-clamp-3 md:line-clamp-none max-w-2xl leading-relaxed">
+            {/* Description */}
+            <p className="text-slate-600 text-lg leading-relaxed max-w-xl line-clamp-3 font-medium">
               {movie.overview || movie.description || 'Khám phá bộ phim tuyệt vời này và học tiếng Anh qua phim một cách hiệu quả.'}
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-4">
+            {/* Actions */}
+            <div className="pt-4 flex items-center gap-4">
               <Link href={`/movie/${movie.id}/watch`}>
-                <Button className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold h-12 px-8 text-lg rounded-md">
-                  <Play className="mr-2 h-5 w-5 fill-black" /> Xem Phim
+                <Button className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold h-14 px-8 text-lg rounded-xl shadow-lg shadow-yellow-400/20 transition-all hover:scale-105 hover:-translate-y-1">
+                  <Play className="mr-2 h-6 w-6 fill-slate-900" /> Xem Phim
                 </Button>
               </Link>
             </div>
