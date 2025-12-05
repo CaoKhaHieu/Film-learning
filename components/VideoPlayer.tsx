@@ -188,9 +188,18 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return "00:00";
-    const minutes = Math.floor(time / 60);
+
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+
+    if (hours > 0) {
+      // Format: HH:MM:SS
+      return `${hours}:${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    } else {
+      // Format: MM:SS
+      return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    }
   };
 
   return (
