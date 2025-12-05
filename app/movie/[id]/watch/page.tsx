@@ -1,17 +1,12 @@
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { getMovieById } from "@/service/movie";
-import { getMovieSubtitles } from "@/service/subtitle";
 import { notFound } from "next/navigation";
-import { VideoPlayerWrapper } from "./VideoPlayerWrapper";
 
 export default async function WatchPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // Fetch movie data and subtitles from backend in parallel
-  const [movie, subtitles] = await Promise.all([
-    getMovieById(id),
-    getMovieSubtitles(id)
-  ]);
+  // Fetch movie data from backend
+  const movie = await getMovieById(id);
 
   // If movie not found, show 404
   if (!movie) {
@@ -22,11 +17,12 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
   const videoUrl = movie.video_url || "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
 
   return (
-    <VideoPlayerWrapper
+    <VideoPlayer
       src={videoUrl}
-      title={movie.title}
-      poster={movie.poster}
-      subtitles={subtitles}
+      title={movie.title_vi || movie.title}
+      subTitle={movie.title_vi ? movie.title : undefined}
+      poster={movie.poster || undefined}
+      autoPlay
     />
   );
 }
