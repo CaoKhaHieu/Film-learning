@@ -65,9 +65,6 @@ export async function Hero() {
               <span>{randomMovie.vote_average ? randomMovie.vote_average.toFixed(1) : 'N/A'}</span>
             </div>
 
-            {/* Age Rating */}
-            <span className="bg-white text-black px-2 py-0.5 rounded font-bold">T16</span>
-
             {/* Year */}
             <span className="border border-white/30 px-2 py-0.5 rounded bg-black/20 backdrop-blur-sm">
               {randomMovie.release_date ? new Date(randomMovie.release_date).getFullYear() : 2025}
