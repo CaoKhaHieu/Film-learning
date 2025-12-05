@@ -28,7 +28,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
       <div className="relative w-full h-[70vh] md:h-[85vh]">
         <div className="absolute inset-0">
           <img
-            src={movie.poster || ''}
+            src={movie.background_image || movie.poster || ''}
             alt={movie.title}
             className="object-cover w-full h-full"
           />
@@ -38,9 +38,16 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
 
         <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-12 md:pb-20">
           <div className="max-w-4xl space-y-6">
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
-              {movie.title}
-            </h1>
+            <div>
+              <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight mb-2">
+                {movie.title_vi || movie.title}
+              </h1>
+              {movie.title_vi && (
+                <h2 className="text-xl md:text-2xl font-semibold text-gray-300">
+                  {movie.title}
+                </h2>
+              )}
+            </div>
 
             {/* Movie Info */}
             <div className="flex flex-wrap items-center gap-4 text-sm md:text-base">
@@ -53,12 +60,28 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ id
                 </span>
               )}
               <span className="text-gray-400">
-                {new Date(movie.created_at).getFullYear()}
+                {movie.release_date ? new Date(movie.release_date).getFullYear() : new Date(movie.created_at).getFullYear()}
               </span>
+              {movie.runtime && (
+                <span className="text-gray-400">
+                  {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
+                </span>
+              )}
+              {movie.vote_average && (
+                <span className="text-green-400 font-bold">
+                  {movie.vote_average.toFixed(1)}
+                </span>
+              )}
             </div>
 
+            {movie.genres && (
+              <div className="text-gray-400 text-sm">
+                {movie.genres}
+              </div>
+            )}
+
             <p className="text-gray-200 text-base md:text-lg line-clamp-3 md:line-clamp-none max-w-2xl leading-relaxed">
-              {movie.description || 'Khám phá bộ phim tuyệt vời này và học tiếng Anh qua phim một cách hiệu quả.'}
+              {movie.overview || movie.description || 'Khám phá bộ phim tuyệt vời này và học tiếng Anh qua phim một cách hiệu quả.'}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 pt-4">

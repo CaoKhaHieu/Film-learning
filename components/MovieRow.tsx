@@ -4,6 +4,7 @@ import { MovieCard } from "./MovieCard";
 interface Movie {
   id: string;
   title: string;
+  title_vi?: string | null;
   image: string;
   category?: string;
   year?: string;

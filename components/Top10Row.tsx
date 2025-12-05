@@ -3,6 +3,7 @@ import Link from "next/link";
 interface Movie {
   id: string;
   title: string;
+  title_vi?: string | null;
   image: string;
   rank: number;
 }
@@ -41,9 +42,12 @@ export function Top10Row({ title, movies }: Top10RowProps) {
                 alt={movie.title}
                 className="object-cover h-full w-full"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <h3 className="text-sm font-bold text-white text-center truncate">{movie.title}</h3>
+              <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 pt-6">
+                <h3 className="text-sm font-bold text-white text-center truncate">{movie.title_vi || movie.title}</h3>
+                {movie.title_vi && (
+                  <p className="text-[10px] text-gray-400 text-center truncate">{movie.title}</p>
+                )}
               </div>
             </div>
           </Link>

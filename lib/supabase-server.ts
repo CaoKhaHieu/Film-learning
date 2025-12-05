@@ -29,9 +29,17 @@ export async function createClient() {
 // Database types
 export type Movie = {
   id: string;
+  tmdb_id: number | null;
   title: string;
-  description: string | null;
+  title_vi: string | null;
+  overview: string | null;
+  description: string | null; // Keep for backward compatibility if needed, though we renamed it in schema
   poster: string | null;
+  background_image: string | null;
+  release_date: string | null;
+  runtime: number | null;
+  vote_average: number | null;
+  genres: string | null;
   video_url: string | null;
   is_vip: boolean;
   difficulty_level: 'beginner' | 'intermediate' | 'advanced' | null;

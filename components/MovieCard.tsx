@@ -4,6 +4,7 @@ import { PlayCircle } from "lucide-react";
 interface MovieCardProps {
   id: string;
   title: string;
+  title_vi?: string | null;
   image: string;
   category?: string;
   year?: string;
@@ -11,7 +12,7 @@ interface MovieCardProps {
   quality?: string;
 }
 
-export function MovieCard({ id, title, image, category, year, isNew, quality }: MovieCardProps) {
+export function MovieCard({ id, title, title_vi, image, category, year, isNew, quality }: MovieCardProps) {
   return (
     <Link href={`/movie/${id}`}>
       <div className="group relative flex-shrink-0 w-[160px] md:w-[240px] cursor-pointer transition-transform duration-300 hover:scale-105 hover:z-10">
@@ -19,7 +20,7 @@ export function MovieCard({ id, title, image, category, year, isNew, quality }: 
           <img
             src={image}
             alt={title}
-            className="object-cover transition-opacity duration-300 group-hover:opacity-80"
+            className="object-cover transition-opacity duration-300 group-hover:opacity-80 w-full h-full"
           />
 
           {/* Overlays */}
@@ -44,8 +45,11 @@ export function MovieCard({ id, title, image, category, year, isNew, quality }: 
 
         <div className="mt-2 px-1">
           <h3 className="text-sm md:text-base font-medium text-white truncate group-hover:text-yellow-500 transition-colors">
-            {title}
+            {title_vi || title}
           </h3>
+          {title_vi && (
+            <p className="text-xs text-gray-400 truncate">{title}</p>
+          )}
           <div className="flex items-center justify-between text-xs text-gray-400 mt-1">
             <span>{category || "Hành động"}</span>
             <span>{year || "2024"}</span>

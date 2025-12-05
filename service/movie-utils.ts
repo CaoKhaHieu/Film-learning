@@ -4,6 +4,7 @@ import { type Movie } from '@/lib/supabase-server';
 export interface MovieRowData {
   id: string;
   title: string;
+  title_vi: string | null;
   image: string;
   isNew: boolean;
   quality: string;
@@ -13,19 +14,25 @@ export interface MovieRowData {
 export interface Top10MovieData {
   id: string;
   title: string;
+  title_vi: string | null;
   image: string;
   rank: number;
 }
 
 // Transform functions (not server actions)
 export function transformMovieForRow(movie: Movie): MovieRowData {
+  const year = movie.release_date
+    ? new Date(movie.release_date).getFullYear().toString()
+    : new Date(movie.created_at).getFullYear().toString();
+
   return {
     id: movie.id,
     title: movie.title,
+    title_vi: movie.title_vi,
     image: movie.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60",
     isNew: false,
     quality: movie.is_vip ? "VIP" : "HD",
-    year: new Date(movie.created_at).getFullYear().toString(),
+    year: year,
   };
 }
 
@@ -33,6 +40,7 @@ export function transformMovieForTop10(movie: Movie, rank: number): Top10MovieDa
   return {
     id: movie.id,
     title: movie.title,
+    title_vi: movie.title_vi,
     image: movie.poster || "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?auto=format&fit=crop&w=500&q=60",
     rank: rank,
   };
@@ -45,8 +53,8 @@ export function getDifficultyLabel(difficultyLevel: string | null): string {
     intermediate: 'Trung Cấp',
     advanced: 'Nâng Cao',
   };
-  
-  return difficultyLevel 
-    ? difficultyLabels[difficultyLevel] || difficultyLevel 
+
+  return difficultyLevel
+    ? difficultyLabels[difficultyLevel] || difficultyLevel
     : 'Chưa xác định';
 }
