@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { PlayCircle } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 interface MovieCardProps {
   id: string;
   title: string;
@@ -10,12 +12,16 @@ interface MovieCardProps {
   year?: string;
   quality?: string;
   background_image?: string;
+  className?: string;
 }
 
-export function MovieCard({ id, title, title_vi, image, category, year, quality, background_image }: MovieCardProps) {
+export function MovieCard({ id, title, title_vi, image, category, year, quality, background_image, className }: MovieCardProps) {
   return (
     <Link href={`/movie/${id}`}>
-      <div className="group relative flex-shrink-0 w-[160px] md:w-[240px] cursor-pointer transition-all duration-300 hover:-translate-y-1">
+      <div className={cn(
+        "group relative flex-shrink-0 cursor-pointer transition-all duration-300 hover:-translate-y-1",
+        className
+      )}>
         <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-white shadow-md group-hover:shadow-xl transition-all duration-300 ring-1 ring-slate-900/5">
           <img
             src={background_image || image}
@@ -37,7 +43,7 @@ export function MovieCard({ id, title, title_vi, image, category, year, quality,
         </div>
 
         <div className="mt-3 px-1 space-y-1">
-          <h3 className="text-base font-bold text-slate-800 truncate group-hover:text-yellow-600 transition-colors">
+          <h3 className="text-lg md:text-xl font-bold text-slate-800 truncate group-hover:text-yellow-600 transition-colors">
             {title}
           </h3>
           <div className="flex items-center justify-between text-xs text-slate-400 font-medium">

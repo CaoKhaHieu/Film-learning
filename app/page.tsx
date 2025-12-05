@@ -15,10 +15,8 @@ export default async function Home() {
       <Navbar />
       <Hero />
 
-      <div className="mt-[-100px] relative z-20 space-y-8">
-        <div className="bg-linear-to-r from-yellow-100/80 to-transparent py-4">
-          <Top10Row title="Top 5 Phim Nên Học" movies={topMovies} />
-        </div>
+      <div className="container mx-auto px-4 py-12 space-y-16">
+        <Top10Row title="Top 5 Phim Nên Học" movies={topMovies} />
         <MovieRow title="Phim Cấp Độ Cơ Bản (Beginner)" movies={beginnerMovies} />
         <MovieRow title="Phim Cấp Độ Trung Cấp (Intermediate)" movies={intermediateMovies} />
         <MovieRow title="Phim Cấp Độ Nâng Cao (Advanced)" movies={advancedMovies} />

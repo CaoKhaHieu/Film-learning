@@ -15,7 +15,7 @@ interface Top10RowProps {
 
 export function Top10Row({ title, movies }: Top10RowProps) {
   return (
-    <div className="py-8 px-4 md:px-12 space-y-6">
+    <div className="py-8 px-4 space-y-6">
       <h2 className="text-xl md:text-2xl font-bold text-slate-900 border-l-4 border-yellow-500 pl-3">
         {title}
       </h2>

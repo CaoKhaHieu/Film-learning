@@ -18,7 +18,7 @@ interface MovieRowProps {
 
 export function MovieRow({ title, movies }: MovieRowProps) {
   return (
-    <div className="py-6 md:py-8 px-4 md:px-12 space-y-4">
+    <div className="py-6 md:py-8 px-4 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-yellow-400 to-orange-500 shadow-sm" />
@@ -36,7 +36,7 @@ export function MovieRow({ title, movies }: MovieRowProps) {
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
           {movies.map((movie) => (
             <div key={movie.id} className="snap-start">
-              <MovieCard {...movie} />
+              <MovieCard {...movie} className="w-[220px] md:w-[300px]" />
             </div>
           ))}
         </div>
