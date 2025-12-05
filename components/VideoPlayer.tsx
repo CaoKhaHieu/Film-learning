@@ -42,6 +42,7 @@ export function VideoPlayer({
   const [showSubtitleSidebar, setShowSubtitleSidebar] = useState(true);
   const [subtitles, setSubtitles] = useState<BilingualSubtitle[]>([]);
   const [currentSubtitle, setCurrentSubtitle] = useState<BilingualSubtitle | null>(null);
+  const [sidebarActiveSubtitle, setSidebarActiveSubtitle] = useState<BilingualSubtitle | null>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load subtitles
@@ -175,11 +176,18 @@ export function VideoPlayer({
       const progressPercent = (currentTime / videoDuration) * 100;
       setProgress(progressPercent);
 
-      // Update current subtitle
-      const sub = subtitles.find(
+      // Update current subtitle for overlay (hide when ended)
+      const activeSub = subtitles.find(
         (s) => currentTime >= s.startTime && currentTime <= s.endTime
       );
-      setCurrentSubtitle(sub || null);
+      setCurrentSubtitle(activeSub || null);
+
+      // Update sidebar active subtitle (keep until next subtitle)
+      if (activeSub) {
+        setSidebarActiveSubtitle(activeSub);
+      }
+      // Don't clear sidebarActiveSubtitle when activeSub is null
+      // It will be updated when the next subtitle starts
     }
   };
 
@@ -380,7 +388,7 @@ export function VideoPlayer({
       {/* Subtitle Sidebar */}
       <SubtitleSidebar
         subtitles={subtitles}
-        currentSubtitle={currentSubtitle}
+        currentSubtitle={sidebarActiveSubtitle}
         isOpen={showSubtitleSidebar}
         onClose={() => setShowSubtitleSidebar(false)}
         onSubtitleClick={handleSubtitleClick}
