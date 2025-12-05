@@ -13,9 +13,16 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE public.movies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  description TEXT,
-  poster TEXT,
+  tmdb_id INTEGER UNIQUE,        -- TMDB Movie ID
+  title TEXT NOT NULL,           -- Original English title
+  title_vi TEXT,                 -- Vietnamese title
+  overview TEXT,                 -- Movie description
+  poster TEXT,                   -- Poster image URL
+  background_image TEXT,         -- Backdrop image URL
+  release_date DATE,
+  runtime INTEGER,               -- Duration in minutes
+  vote_average DECIMAL(3,1),     -- TMDB rating (0-10)
+  genres TEXT,                   -- Comma-separated genres
   video_url TEXT,
   is_vip BOOLEAN DEFAULT FALSE,  -- VIP-only content
   difficulty_level TEXT,         -- beginner, intermediate, advanced
@@ -53,9 +60,12 @@ CREATE TABLE public.subscriptions (
 -- =============================================
 
 -- Movies indexes
+CREATE INDEX idx_movies_tmdb_id ON public.movies(tmdb_id);
 CREATE INDEX idx_movies_is_vip ON public.movies(is_vip);
 CREATE INDEX idx_movies_difficulty ON public.movies(difficulty_level);
 CREATE INDEX idx_movies_created_at ON public.movies(created_at DESC);
+CREATE INDEX idx_movies_release_date ON public.movies(release_date DESC);
+CREATE INDEX idx_movies_vote_average ON public.movies(vote_average DESC);
 
 -- Subtitles indexes
 CREATE INDEX idx_subtitles_movie ON public.subtitles(movie_id);
@@ -116,7 +126,7 @@ CREATE POLICY "Users can update own subscriptions" ON public.subscriptions
 -- =============================================
 
 -- Insert sample movies
-INSERT INTO public.movies (title, description, poster, video_url, is_vip, difficulty_level) VALUES
-    ('The Shawshank Redemption', 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.', 'https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg', 'https://example.com/video/shawshank.m3u8', FALSE, 'intermediate'),
-    ('The Godfather', 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.', 'https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg', 'https://example.com/video/godfather.m3u8', TRUE, 'advanced'),
-    ('Forrest Gump', 'The presidencies of Kennedy and Johnson, the Vietnam War, and other historical events unfold from the perspective of an Alabama man.', 'https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg', 'https://example.com/video/forrest.m3u8', FALSE, 'beginner');
+INSERT INTO public.movies (tmdb_id, title, title_vi, overview, poster, background_image, release_date, runtime, vote_average, genres, video_url, is_vip, difficulty_level) VALUES
+    (278, 'The Shawshank Redemption', 'Nhà Tù Shawshank', 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.', 'https://image.tmdb.org/t/p/original/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg', 'https://image.tmdb.org/t/p/original/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg', '1994-09-23', 142, 8.7, 'Drama, Crime', 'https://example.com/video/shawshank.m3u8', FALSE, 'intermediate'),
+    (238, 'The Godfather', 'Bố Già', 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.', 'https://image.tmdb.org/t/p/original/3bhkrj58Vtu7enYsRolD1fZdja1.jpg', 'https://image.tmdb.org/t/p/original/tmU7GeKVybMWFButWEGl2M4GeiP.jpg', '1972-03-14', 175, 8.7, 'Drama, Crime', 'https://example.com/video/godfather.m3u8', TRUE, 'advanced'),
+    (13, 'Forrest Gump', 'Forrest Gump', 'The presidencies of Kennedy and Johnson, the Vietnam War, and other historical events unfold from the perspective of an Alabama man.', 'https://image.tmdb.org/t/p/original/saHP97rTPS5eLmrLQEcANmKrsFl.jpg', 'https://image.tmdb.org/t/p/original/qdIMHd4sEfJSckfVJfKQvisL02a.jpg', '1994-06-23', 142, 8.5, 'Comedy, Drama, Romance', 'https://example.com/video/forrest.m3u8', FALSE, 'beginner');

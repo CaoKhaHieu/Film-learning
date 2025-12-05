@@ -100,9 +100,23 @@ Script sẽ tạo file CSV trong thư mục `tools/output/`:
 
 **CSV** (`movies-{timestamp}.csv`) - File CSV để import vào Supabase
 
-## Import vào Supabase
+### Import vào Supabase
 
-### Sử dụng CSV Import (Recommended)
+#### Cách 1: Sử dụng Script (Recommended)
+
+Sử dụng script `import-movies.js` để import tự động từ file CSV mới nhất hoặc file được chỉ định:
+
+```bash
+# Tự động tìm file CSV mới nhất trong tools/output và import
+node tools/import-movies.js
+
+# Hoặc chỉ định file cụ thể
+node tools/import-movies.js tools/output/movies-2025-12-04T16-25-51.csv
+```
+
+**Lưu ý:** Cần cấu hình `SUPABASE_SERVICE_ROLE_KEY` trong `.env.local` để script có quyền ghi vào database.
+
+#### Cách 2: Import thủ công trên Dashboard
 
 1. Mở Supabase Dashboard
 2. Vào Table Editor → movies table
