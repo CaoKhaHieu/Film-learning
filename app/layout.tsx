@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Oswald } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
+import { NavigationProgress } from "@/components/NavigationProgress";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,6 +31,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${oswald.variable} antialiased font-sans`}
       >
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         {children}
       </body>
     </html>
