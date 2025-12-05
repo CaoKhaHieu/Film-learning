@@ -6,26 +6,37 @@ import { createClient } from '@/lib/supabase-server';
 export async function Hero() {
   const supabase = await createClient();
 
-  // Fetch the latest movie
-  const { data: latestMovie } = await supabase
+  // Fetch all movies and select one randomly
+  const { data: movies, error } = await supabase
     .from('movies')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
+    .select('*');
 
-  // Fallback data if no movie found
-  const movie = latestMovie || {
-    id: 'default',
-    title: 'CONAN',
-    title_vi: 'Thám Tử Lừng Danh Conan',
-    overview: 'Thám tử lừng danh Conan phải đối mặt với vụ án khó khăn nhất từ trước đến nay. Một bí ẩn bao trùm lên toàn bộ thành phố Tokyo khi tổ chức áo đen bắt đầu hành động trở lại.',
-    poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop',
-    background_image: null,
-    vote_average: 8.5,
-    release_date: '2024-07-15',
-    runtime: 112
-  };
+  // Debug logging
+  if (error) {
+    console.error('Error fetching movies:', error);
+  }
+  console.log('Fetched movies count:', movies?.length || 0);
+
+  // Select a random movie from the fetched movies
+  let randomMovie = null;
+  if (movies && movies.length > 0) {
+    const randomIndex = Math.floor(Math.random() * movies.length);
+    randomMovie = movies[randomIndex];
+    console.log('Selected random movie:', randomMovie.title);
+  }
+
+
+  // If no movie found, show empty state
+  if (!randomMovie) {
+    return (
+      <div className="relative h-[85vh] w-full overflow-hidden bg-slate-900 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold text-white">Chưa có phim nào trong database</h2>
+          <p className="text-slate-400">Vui lòng thêm phim vào database để hiển thị Hero section</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-[85vh] w-full overflow-hidden bg-slate-900">
@@ -34,7 +45,7 @@ export async function Hero() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('${movie.background_image || movie.poster || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'}')`,
+            backgroundImage: `url('${randomMovie.background_image || randomMovie.poster || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'}')`,
           }}
         />
         {/* Simple gradient overlay for text readability */}
@@ -51,7 +62,7 @@ export async function Hero() {
             {/* IMDb Badge */}
             <div className="flex items-center border border-yellow-400 rounded px-2 py-0.5 gap-1.5 bg-black/20 backdrop-blur-sm">
               <span className="text-yellow-400 font-black">IMDb</span>
-              <span>{movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</span>
+              <span>{randomMovie.vote_average ? randomMovie.vote_average.toFixed(1) : 'N/A'}</span>
             </div>
 
             {/* Age Rating */}
@@ -59,13 +70,13 @@ export async function Hero() {
 
             {/* Year */}
             <span className="border border-white/30 px-2 py-0.5 rounded bg-black/20 backdrop-blur-sm">
-              {movie.release_date ? new Date(movie.release_date).getFullYear() : 2025}
+              {randomMovie.release_date ? new Date(randomMovie.release_date).getFullYear() : 2025}
             </span>
 
             {/* Duration */}
-            {movie.runtime && (
+            {randomMovie.runtime && (
               <span className="border border-white/30 px-2 py-0.5 rounded bg-black/20 backdrop-blur-sm">
-                {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
+                {Math.floor(randomMovie.runtime / 60)}h {randomMovie.runtime % 60}m
               </span>
             )}
           </div>
@@ -85,17 +96,17 @@ export async function Hero() {
           {/* Description */}
           <div className="space-y-2">
             <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-tight mb-4">
-              {movie.title_vi || movie.title}
+              {randomMovie.title_vi || randomMovie.title}
             </h1>
 
             <p className="text-slate-300 text-base leading-relaxed max-w-2xl line-clamp-3 font-medium drop-shadow-sm">
-              {movie.overview || movie.description || 'Khám phá bộ phim tuyệt vời này và học tiếng Anh qua phim một cách hiệu quả.'}
+              {randomMovie.overview || 'Khám phá bộ phim tuyệt vời này và học tiếng Anh qua phim một cách hiệu quả.'}
             </p>
           </div>
 
           {/* Actions */}
           <div className="pt-6 flex items-center gap-6">
-            <Link href={`/movie/${movie.id}`}>
+            <Link href={`/movie/${randomMovie.id}`}>
               <button className="group relative w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg shadow-yellow-400/20 transition-all hover:scale-110 hover:shadow-yellow-400/40 cursor-pointer">
                 <Play className="w-8 h-8 fill-slate-900 text-slate-900 ml-1 transition-transform group-hover:scale-110" />
               </button>
