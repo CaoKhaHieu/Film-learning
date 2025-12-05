@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipForward, SkipBack, ArrowLeft } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipForward, SkipBack, ArrowLeft, List, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
@@ -12,11 +12,30 @@ interface VideoPlayerProps {
   autoPlay?: boolean;
   title?: string;
   subTitle?: string;
+  subtitleEn?: string;
+  subtitleVi?: string;
 }
 
-export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: VideoPlayerProps) {
+interface SubtitleCue {
+  id: number;
+  startTime: number;
+  endTime: number;
+  en: string;
+  vi: string;
+}
+
+export function VideoPlayer({
+  src,
+  poster,
+  autoPlay = false,
+  title,
+  subTitle,
+  subtitleEn,
+  subtitleVi
+}: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const subtitleListRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -26,7 +45,120 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
+  const [showSubtitleSidebar, setShowSubtitleSidebar] = useState(true);
+  const [subtitles, setSubtitles] = useState<SubtitleCue[]>([]);
+  const [currentSubtitle, setCurrentSubtitle] = useState<SubtitleCue | null>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Parse VTT file
+  const parseVTT = async (url: string): Promise<{ id: number; startTime: number; endTime: number; text: string }[]> => {
+    try {
+      const response = await fetch(url);
+      const text = await response.text();
+      const lines = text.split('\n');
+      const cues: { id: number; startTime: number; endTime: number; text: string }[] = [];
+
+      let i = 0;
+      let cueId = 0;
+
+      while (i < lines.length) {
+        const line = lines[i].trim();
+
+        // Skip WEBVTT header and empty lines
+        if (line === '' || line.startsWith('WEBVTT') || line.startsWith('NOTE')) {
+          i++;
+          continue;
+        }
+
+        // Check if this is a timestamp line
+        if (line.includes('-->')) {
+          const [startStr, endStr] = line.split('-->').map(s => s.trim());
+          const startTime = parseVTTTime(startStr);
+          const endTime = parseVTTTime(endStr);
+
+          // Get subtitle text (may be multiple lines)
+          i++;
+          let text = '';
+          while (i < lines.length && lines[i].trim() !== '') {
+            text += (text ? ' ' : '') + lines[i].trim().replace(/<[^>]*>/g, ''); // Remove HTML tags
+            i++;
+          }
+
+          if (text) {
+            cues.push({
+              id: cueId++,
+              startTime,
+              endTime,
+              text
+            });
+          }
+        }
+        i++;
+      }
+
+      return cues;
+    } catch (error) {
+      console.error('Error parsing VTT:', error);
+      return [];
+    }
+  };
+
+  const parseVTTTime = (timeStr: string): number => {
+    const parts = timeStr.split(':');
+    if (parts.length === 3) {
+      const [hours, minutes, seconds] = parts;
+      return parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseFloat(seconds);
+    } else if (parts.length === 2) {
+      const [minutes, seconds] = parts;
+      return parseInt(minutes) * 60 + parseFloat(seconds);
+    }
+    return 0;
+  };
+
+  // Load and merge subtitles
+  useEffect(() => {
+    const loadSubtitles = async () => {
+      if (!subtitleEn && !subtitleVi) return;
+
+      const [enCues, viCues] = await Promise.all([
+        subtitleEn ? parseVTT(subtitleEn) : Promise.resolve([]),
+        subtitleVi ? parseVTT(subtitleVi) : Promise.resolve([])
+      ]);
+
+      // Merge subtitles by matching timestamps
+      const merged: SubtitleCue[] = [];
+      const maxLength = Math.max(enCues.length, viCues.length);
+
+      for (let i = 0; i < maxLength; i++) {
+        const enCue = enCues[i];
+        const viCue = viCues[i];
+
+        if (enCue || viCue) {
+          merged.push({
+            id: i,
+            startTime: enCue?.startTime || viCue?.startTime || 0,
+            endTime: enCue?.endTime || viCue?.endTime || 0,
+            en: enCue?.text || '',
+            vi: viCue?.text || ''
+          });
+        }
+      }
+
+      setSubtitles(merged);
+    };
+
+    loadSubtitles();
+  }, [subtitleEn, subtitleVi]);
+
+  // Auto-scroll subtitle list to active item
+  useEffect(() => {
+    if (showSubtitleSidebar && currentSubtitle && subtitleListRef.current) {
+      const activeElement = subtitleListRef.current.querySelector(`[data-id="${currentSubtitle.id}"]`);
+      if (activeElement) {
+        activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [currentSubtitle, showSubtitleSidebar]);
 
   // Initialize HLS
   useEffect(() => {
@@ -34,8 +166,6 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
     if (!video) return;
 
     let hls: Hls | null = null;
-
-    // Check if source is HLS
     const isHLS = src.includes(".m3u8");
 
     if (isHLS && Hls.isSupported()) {
@@ -44,17 +174,19 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         if (autoPlay) {
-          video.play().catch(() => {
-            // Autoplay failed, user interaction required
-          });
+          video.play().catch(() => { });
         }
       });
     } else {
-      // For MP4 or native HLS support (Safari)
       video.src = src;
       if (autoPlay) {
         video.play().catch(() => { });
       }
+    }
+
+    // Enable subtitles by default
+    if (video.textTracks.length > 0) {
+      video.textTracks[0].mode = 'showing';
     }
 
     return () => {
@@ -141,14 +273,18 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
       const currentTime = videoRef.current.currentTime;
       const videoDuration = videoRef.current.duration;
 
-      // Update duration if it changed
       if (duration !== videoDuration) {
         setDuration(videoDuration);
       }
 
-      // Calculate progress percentage
       const progressPercent = (currentTime / videoDuration) * 100;
       setProgress(progressPercent);
+
+      // Update current subtitle
+      const sub = subtitles.find(
+        (s) => currentTime >= s.startTime && currentTime <= s.endTime
+      );
+      setCurrentSubtitle(sub || null);
     }
   };
 
@@ -156,12 +292,8 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
     if (videoRef.current && !isNaN(duration) && duration > 0) {
       const seekPercent = parseFloat(e.target.value);
       const seekTime = (seekPercent / 100) * duration;
-
-      // Clamp seekTime to valid range
       const clampedSeekTime = Math.max(0, Math.min(seekTime, duration));
-
       videoRef.current.currentTime = clampedSeekTime;
-      // Don't manually set progress - let handleTimeUpdate do it
     }
   };
 
@@ -171,11 +303,8 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
       const rect = progressBar.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const clickPercent = (clickX / rect.width) * 100;
-
-      // Clamp to 0-100%
       const clampedPercent = Math.max(0, Math.min(clickPercent, 100));
       const seekTime = (clampedPercent / 100) * duration;
-
       videoRef.current.currentTime = seekTime;
     }
   };
@@ -183,6 +312,12 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
   const skip = (seconds: number) => {
     if (videoRef.current) {
       videoRef.current.currentTime += seconds;
+    }
+  };
+
+  const handleSubtitleClick = (startTime: number) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = startTime;
     }
   };
 
@@ -194,10 +329,8 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
     const seconds = Math.floor(time % 60);
 
     if (hours > 0) {
-      // Format: HH:MM:SS
       return `${hours}:${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     } else {
-      // Format: MM:SS
       return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     }
   };
@@ -205,9 +338,9 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen bg-black group overflow-hidden"
+      className="relative w-full h-screen bg-black group overflow-hidden flex"
     >
-      <div className="relative w-full h-full bg-black">
+      <div className="relative flex-1 h-full bg-black">
         <video
           ref={videoRef}
           className="w-full h-full object-contain"
@@ -221,7 +354,46 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
           onTimeUpdate={handleTimeUpdate}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
-        />
+          crossOrigin="anonymous"
+        >
+          {subtitleEn && (
+            <track
+              kind="subtitles"
+              src={subtitleEn}
+              srcLang="en"
+              label="English"
+              default
+            />
+          )}
+          {subtitleVi && (
+            <track
+              kind="subtitles"
+              src={subtitleVi}
+              srcLang="vi"
+              label="Tiếng Việt"
+            />
+          )}
+        </video>
+
+        {/* Subtitle Overlay */}
+        {currentSubtitle && (
+          <div className="absolute bottom-24 left-0 right-0 flex flex-col items-center px-8 z-10 pointer-events-none">
+            {currentSubtitle.en && (
+              <div className="bg-black/80 backdrop-blur-sm px-6 py-3 rounded-lg mb-2 max-w-4xl">
+                <p className="text-white text-xl md:text-2xl font-semibold text-center leading-relaxed shadow-lg">
+                  {currentSubtitle.en}
+                </p>
+              </div>
+            )}
+            {currentSubtitle.vi && (
+              <div className="bg-black/70 backdrop-blur-sm px-6 py-2 rounded-lg max-w-4xl">
+                <p className="text-yellow-400 text-base md:text-lg font-medium text-center leading-relaxed shadow-lg">
+                  {currentSubtitle.vi}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Top Bar */}
         <div className={`absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300 z-20 ${showControls ? "opacity-100" : "opacity-0"}`}>
@@ -246,10 +418,7 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
         )}
 
         {/* Click Overlay */}
-        <div
-          className="absolute inset-0 z-0"
-          onClick={togglePlay}
-        />
+        <div className="absolute inset-0 z-0" onClick={togglePlay} />
 
         {/* Bottom Controls */}
         <div className={`absolute bottom-0 left-0 right-0 px-4 pb-4 pt-12 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 z-20 ${showControls ? "opacity-100" : "opacity-0"}`}>
@@ -313,11 +482,73 @@ export function VideoPlayer({ src, poster, autoPlay = false, title, subTitle }: 
             </div>
 
             <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`text-white hover:text-yellow-500 ${showSubtitleSidebar ? 'text-yellow-500 bg-white/10' : ''}`}
+                onClick={() => setShowSubtitleSidebar(!showSubtitleSidebar)}
+                title="Danh sách phụ đề"
+              >
+                <List className="w-6 h-6" />
+              </Button>
               <Button variant="ghost" size="icon" className="text-white hover:text-yellow-500" onClick={toggleFullscreen}>
                 {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
               </Button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Subtitle Sidebar */}
+      <div
+        className={`bg-slate-950 border-l border-slate-800 transition-all duration-300 ease-in-out flex flex-col ${showSubtitleSidebar ? "w-80 translate-x-0" : "w-0 translate-x-full opacity-0"
+          }`}
+      >
+        <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950 z-10">
+          <h3 className="text-slate-200 font-bold text-sm uppercase tracking-wider">Phụ đề song ngữ</h3>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full"
+            onClick={() => setShowSubtitleSidebar(false)}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <div ref={subtitleListRef} className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+          {subtitles.map((sub) => (
+            <div
+              key={sub.id}
+              data-id={sub.id}
+              onClick={() => handleSubtitleClick(sub.startTime)}
+              className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border group/item ${currentSubtitle?.id === sub.id
+                ? "bg-yellow-500/10 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.1)]"
+                : "bg-slate-900 border-transparent hover:bg-slate-800 hover:border-slate-700"
+                }`}
+            >
+              <div className="flex justify-between items-start mb-1.5">
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${currentSubtitle?.id === sub.id
+                  ? "bg-yellow-500/20 text-yellow-500"
+                  : "bg-slate-800 text-slate-500 group-hover/item:text-slate-400"
+                  }`}>
+                  {formatTime(sub.startTime)}
+                </span>
+              </div>
+              {sub.en && (
+                <p className={`text-base font-semibold mb-2 leading-relaxed ${currentSubtitle?.id === sub.id ? "text-yellow-400" : "text-slate-200 group-hover/item:text-white"
+                  }`}>
+                  {sub.en}
+                </p>
+              )}
+              {sub.vi && (
+                <p className={`text-sm font-medium leading-relaxed ${currentSubtitle?.id === sub.id ? "text-slate-300" : "text-slate-400 group-hover/item:text-slate-300"
+                  }`}>
+                  {sub.vi}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
