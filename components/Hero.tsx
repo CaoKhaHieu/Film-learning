@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Play, Info, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { createClient } from '@/lib/supabase-server';
+import { Play, ChevronDown } from "lucide-react";
+import { createClient, type Movie } from '@/lib/supabase-server';
 
 export async function Hero() {
   const supabase = await createClient();
@@ -18,18 +17,18 @@ export async function Hero() {
   console.log('Fetched movies count:', movies?.length || 0);
 
   // Select a random movie from the fetched movies
-  let randomMovie = null;
+  let randomMovie: Movie | null = null;
   if (movies && movies.length > 0) {
     const randomIndex = Math.floor(Math.random() * movies.length);
     randomMovie = movies[randomIndex];
-    console.log('Selected random movie:', randomMovie.title);
+    console.log('Selected random movie:', randomMovie?.title);
   }
 
 
   // If no movie found, show empty state
   if (!randomMovie) {
     return (
-      <div className="relative h-[85vh] w-full overflow-hidden bg-slate-900 flex items-center justify-center">
+      <div className="relative h-screen w-full overflow-hidden bg-slate-900 flex items-center justify-center">
         <div className="text-center space-y-4">
           <h2 className="text-3xl font-bold text-white">Chưa có phim nào trong database</h2>
           <p className="text-slate-400">Vui lòng thêm phim vào database để hiển thị Hero section</p>
@@ -39,11 +38,11 @@ export async function Hero() {
   }
 
   return (
-    <div className="relative h-[85vh] w-full overflow-hidden bg-slate-900">
+    <div className="relative h-screen w-full overflow-hidden bg-slate-900">
       {/* Background Image Area */}
       <div className="absolute inset-0 w-full h-full">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
           style={{
             backgroundImage: `url('${randomMovie.background_image || randomMovie.poster || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'}')`,
           }}
@@ -79,16 +78,18 @@ export async function Hero() {
           </div>
 
           {/* Genres */}
-          <div className="flex flex-wrap gap-2">
-            {['Chính Kịch', 'Chiếu Rạp', 'Gay Cấn', 'Hình Sự', 'Bí Ẩn', 'Phiêu Lưu'].map((genre) => (
-              <span
-                key={genre}
-                className="px-3 py-1.5 bg-transparent text-slate-200 rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors cursor-pointer border border-white/5"
-              >
-                {genre}
-              </span>
-            ))}
-          </div>
+          {randomMovie.genres && (
+            <div className="flex flex-wrap gap-2">
+              {randomMovie.genres.split(',').map((genre) => (
+                <span
+                  key={genre.trim()}
+                  className="px-3 py-1.5 bg-white/5 backdrop-blur-sm text-slate-200 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer border border-white/20 hover:bg-white/20 hover:border-white/50 hover:text-white hover:scale-105"
+                >
+                  {genre.trim()}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Description */}
           <div className="space-y-2">
@@ -110,6 +111,12 @@ export async function Hero() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-bounce pointer-events-none">
+        <span className="text-white/50 text-[10px] font-medium uppercase tracking-[0.2em]">Scroll</span>
+        <ChevronDown className="w-6 h-6 text-white/50" />
       </div>
     </div>
   );
