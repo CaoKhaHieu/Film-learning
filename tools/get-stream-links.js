@@ -1,11 +1,13 @@
+const fs = require('fs');
+const path = require('path');
 const puppeteer = require('puppeteer');
 const { createClient } = require('@supabase/supabase-js');
 const axios = require('axios');
 require('dotenv').config({ path: '.env.local' });
 
-// Initialize Supabase client
+// Initialize Supabase client with Service Role Key to bypass RLS
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Error: Missing Supabase environment variables');
@@ -14,13 +16,278 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function getStreamLinks(movieId) {
+const SrtParser = require('srt-parser-2').default;
+const { translate } = require('google-translate-api-x');
+
+const OUTPUT_DIR = path.join(__dirname, '../output');
+const ERROR_LOG = path.join(OUTPUT_DIR, 'error.log');
+const PROCESSED_LOG = path.join(OUTPUT_DIR, 'processed_ids.txt');
+
+// Ensure output directory exists
+if (!fs.existsSync(OUTPUT_DIR)) {
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+}
+
+// Ensure processed log exists
+if (!fs.existsSync(PROCESSED_LOG)) {
+  fs.writeFileSync(PROCESSED_LOG, '');
+}
+
+function logError(movieId, message) {
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] Movie ID ${movieId}: ${message}\n`;
+  fs.appendFileSync(ERROR_LOG, logMessage);
+  console.error(`ERROR: ${message}`);
+}
+
+function markAsProcessed(movieId) {
+  fs.appendFileSync(PROCESSED_LOG, `${movieId}\n`);
+}
+
+function getProcessedIds() {
+  if (!fs.existsSync(PROCESSED_LOG)) return new Set();
+  const content = fs.readFileSync(PROCESSED_LOG, 'utf-8');
+  return new Set(content.split('\n').map(line => line.trim()).filter(Boolean));
+}
+
+async function uploadToStorage(filename, content, contentType) {
+  const { data, error } = await supabase
+    .storage
+    .from('subtitles')
+    .upload(filename, content, {
+      contentType: contentType,
+      upsert: true
+    });
+
+  if (error) {
+    throw new Error(`Upload failed for ${filename}: ${error.message}`);
+  }
+
+  const { data: publicUrlData } = supabase
+    .storage
+    .from('subtitles')
+    .getPublicUrl(filename);
+
+  return publicUrlData.publicUrl;
+}
+
+async function translateSubtitleToVietnamese(srtContent) {
+  const parser = new SrtParser();
+  const srtArray = parser.fromSrt(srtContent);
+
+  console.log(`Translating ${srtArray.length} subtitle lines to Vietnamese...`);
+
+  // Process in batches to avoid rate limits and URL length issues
+  const BATCH_SIZE = 20;
+  const translatedArray = [];
+
+  for (let i = 0; i < srtArray.length; i += BATCH_SIZE) {
+    const batch = srtArray.slice(i, i + BATCH_SIZE);
+    const textsToTranslate = batch.map(item => item.text).join(' ||| ');
+
+    try {
+      const res = await translate(textsToTranslate, { to: 'vi' });
+      const translatedTexts = res.text.split(' ||| ');
+
+      batch.forEach((item, index) => {
+        translatedArray.push({
+          ...item,
+          text: translatedTexts[index] ? translatedTexts[index].trim() : item.text
+        });
+      });
+
+      // Small delay to be nice to the API
+      await new Promise(r => setTimeout(r, 500));
+
+    } catch (e) {
+      console.error(`Error translating batch ${i}:`, e.message);
+      batch.forEach(item => translatedArray.push(item));
+    }
+  }
+
+  return parser.toSrt(translatedArray);
+}
+
+async function processMovie(movieId, browser) {
+  console.log(`\n=== Processing movie ID: ${movieId} ===`);
   const url = `https://flixer.sh/watch/movie/${movieId}`;
-  console.log(`Processing movie ID: ${movieId}`);
-  console.log(`Navigating to ${url}...`);
+
+  let page = null;
+
+  try {
+    page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+    await page.setViewport({ width: 1920, height: 1080 });
+
+    let m3u8Link = null;
+    let subtitleApiLink = null;
+
+    await page.setRequestInterception(true);
+
+    page.on('request', (request) => {
+      const reqUrl = request.url();
+      if (!m3u8Link && reqUrl.includes('.m3u8')) {
+        m3u8Link = reqUrl;
+        console.log('Found m3u8:', reqUrl);
+      }
+      const lowerUrl = reqUrl.toLowerCase();
+      if (
+        !subtitleApiLink &&
+        (lowerUrl.includes('sub.wyzie.ru') ||
+          lowerUrl.includes('/subtitle') ||
+          (lowerUrl.includes('sub') && lowerUrl.includes('format=')))
+      ) {
+        subtitleApiLink = reqUrl;
+        console.log('Found subtitle API:', reqUrl);
+      }
+      request.continue();
+    });
+
+    console.log(`Navigating to ${url}...`);
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+
+    // Try to play/enable captions
+    try {
+      const playButtonSelector = '.play-button, button[aria-label="Play"], .vjs-big-play-button, .jw-display-icon-container';
+      if (await page.$(playButtonSelector)) {
+        await page.click(playButtonSelector);
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    } catch (e) { }
+
+    try {
+      const ccButtonSelector = 'button[aria-label="Captions"], .vjs-subs-caps-button, .jw-icon-cc';
+      if (await page.$(ccButtonSelector)) {
+        await page.click(ccButtonSelector);
+      }
+    } catch (e) { }
+
+    // Wait for links
+    for (let i = 0; i < 15; i++) {
+      if (m3u8Link && subtitleApiLink) break;
+      await new Promise(r => setTimeout(r, 1000));
+    }
+
+    if (!m3u8Link) {
+      logError(movieId, 'Missing m3u8 link');
+      return;
+    }
+
+    if (!subtitleApiLink) {
+      logError(movieId, 'Missing subtitle API link');
+      return;
+    }
+
+    // Fetch subtitle data
+    console.log('Fetching subtitle data...');
+    const subResponse = await axios.get(subtitleApiLink);
+    const subtitles = subResponse.data;
+
+    if (!Array.isArray(subtitles) || subtitles.length === 0) {
+      logError(movieId, 'No subtitles found in API response');
+      return;
+    }
+
+    const englishSubtitle = subtitles.find(sub => sub.language === 'en');
+    if (!englishSubtitle) {
+      logError(movieId, 'No English subtitle found');
+      return;
+    }
+
+    // Get Movie UUID
+    const { data: movieData, error: movieError } = await supabase
+      .from('movies')
+      .select('id')
+      .eq('tmdb_id', movieId)
+      .single();
+
+    if (movieError || !movieData) {
+      logError(movieId, `Movie not found in DB: ${movieError?.message}`);
+      return;
+    }
+    const movieUuid = movieData.id;
+
+    // Download English Subtitle
+    console.log('Downloading English subtitle...');
+    const enSubResponse = await axios.get(englishSubtitle.url);
+    const enSubContent = enSubResponse.data;
+
+    // Translate to Vietnamese
+    console.log('Translating to Vietnamese...');
+    const viSubContent = await translateSubtitleToVietnamese(enSubContent);
+
+    // Upload both
+    console.log('Uploading subtitles...');
+    const enUrl = await uploadToStorage(`${movieUuid}/en.srt`, enSubContent, 'text/plain');
+    const viUrl = await uploadToStorage(`${movieUuid}/vi.srt`, viSubContent, 'text/plain');
+
+    if (!enUrl || !viUrl) {
+      logError(movieId, 'Failed to upload one or both subtitles');
+      return;
+    }
+
+    // All success - Update Database
+    console.log('All components found. Updating database...');
+
+    // Update Video URL
+    const { error: videoError } = await supabase
+      .from('movies')
+      .update({ video_url: m3u8Link })
+      .eq('id', movieUuid);
+
+    if (videoError) {
+      logError(movieId, `DB Error updating video: ${videoError.message}`);
+      return;
+    }
+
+    // Update Subtitles
+    // Delete old subtitles first to be clean
+    await supabase.from('subtitles').delete().eq('movie_id', movieUuid);
+
+    const { error: subError } = await supabase
+      .from('subtitles')
+      .insert([
+        { movie_id: movieUuid, language: 'en', url: enUrl },
+        { movie_id: movieUuid, language: 'vi', url: viUrl }
+      ]);
+
+    if (subError) {
+      logError(movieId, `DB Error updating subtitles: ${subError.message}`);
+    } else {
+      console.log(`SUCCESS: Movie ${movieId} fully updated.`);
+    }
+
+  } catch (error) {
+    logError(movieId, `Unexpected error: ${error.message}`);
+  } finally {
+    if (page) await page.close();
+    // Mark as processed regardless of outcome to avoid infinite loops on broken movies
+    // If user wants to retry, they can delete the processed_ids.txt or specific lines
+    markAsProcessed(movieId);
+  }
+}
+
+async function main() {
+  const idsFile = path.join(__dirname, 'movie-ids.txt');
+  const content = fs.readFileSync(idsFile, 'utf-8');
+  const allMovieIds = content.split('\n')
+    .map(line => line.trim())
+    .filter(line => line && !line.startsWith('#'));
+
+  const processedIds = getProcessedIds();
+  const movieIds = allMovieIds.filter(id => !processedIds.has(id));
+
+  console.log(`Found ${allMovieIds.length} total movies.`);
+  console.log(`Skipping ${processedIds.size} already processed movies.`);
+  console.log(`Starting processing for ${movieIds.length} remaining movies...`);
+
+  if (movieIds.length === 0) {
+    console.log('All movies have been processed!');
+    return;
+  }
 
   const browser = await puppeteer.launch({
-    headless: "new", // Run in headless mode
+    headless: "new",
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -29,167 +296,15 @@ async function getStreamLinks(movieId) {
     ]
   });
 
-  const page = await browser.newPage();
-
-  // Set a real user agent
-  await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
-
-  // Set viewport
-  await page.setViewport({ width: 1920, height: 1080 });
-
-  // Store found links
-  let m3u8Link = null;
-  let subtitleApiLink = null;
-
-  // Enable request interception
-  await page.setRequestInterception(true);
-
-  page.on('request', (request) => {
-    const reqUrl = request.url();
-
-    // Check for m3u8 - capture the first one
-    if (!m3u8Link && reqUrl.includes('.m3u8')) {
-      m3u8Link = reqUrl;
-      console.log('Found m3u8:', reqUrl);
-    }
-
-    // Check for subtitle API - look for the specific pattern
-    const lowerUrl = reqUrl.toLowerCase();
-    if (
-      !subtitleApiLink &&
-      (lowerUrl.includes('sub.wyzie.ru') ||
-        lowerUrl.includes('/subtitle') ||
-        (lowerUrl.includes('sub') && lowerUrl.includes('format=')))
-    ) {
-      subtitleApiLink = reqUrl;
-      console.log('Found subtitle API:', reqUrl);
-    }
-
-    request.continue();
-  });
-
   try {
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
-
-    // Wait a bit more for any delayed requests or player initialization
-    console.log('Page loaded, waiting for player...');
-
-    // Try to find and click a play button if it exists
-    try {
-      const playButtonSelector = '.play-button, button[aria-label="Play"], .vjs-big-play-button, .jw-display-icon-container';
-      if (await page.$(playButtonSelector)) {
-        console.log('Clicking play button...');
-        await page.click(playButtonSelector);
-        await new Promise(r => setTimeout(r, 2000)); // Wait after click
-      }
-    } catch (e) {
-      console.log('Play click error:', e.message);
+    for (const id of movieIds) {
+      await processMovie(id, browser);
+      // Small delay between movies
+      await new Promise(r => setTimeout(r, 2000));
     }
-
-    // Try to find CC button and click it to force subtitle load
-    try {
-      const ccButtonSelector = 'button[aria-label="Captions"], .vjs-subs-caps-button, .jw-icon-cc';
-      if (await page.$(ccButtonSelector)) {
-        console.log('Clicking CC button...');
-        await page.click(ccButtonSelector);
-      }
-    } catch (e) {
-      console.log('CC click error:', e.message);
-    }
-
-    // Wait for up to 15 seconds, but check periodically if we found the links
-    for (let i = 0; i < 15; i++) {
-      if (m3u8Link && subtitleApiLink) break;
-      await new Promise(r => setTimeout(r, 1000));
-    }
-
-    // First, get the movie UUID from database
-    const { data: movieData, error: movieError } = await supabase
-      .from('movies')
-      .select('id')
-      .eq('tmdb_id', movieId)
-      .single();
-
-    if (movieError || !movieData) {
-      console.error('Error finding movie in database:', movieError);
-      await browser.close();
-      return;
-    }
-
-    const movieUuid = movieData.id;
-    console.log(`Found movie UUID: ${movieUuid}`);
-
-    // Update video URL if found
-    if (m3u8Link) {
-      console.log('Updating video URL in database...');
-      const { error } = await supabase
-        .from('movies')
-        .update({ video_url: m3u8Link })
-        .eq('tmdb_id', movieId);
-
-      if (error) {
-        console.error('Error updating video URL:', error);
-      } else {
-        console.log(`Successfully updated movie ${movieId} with video URL.`);
-      }
-    } else {
-      console.log('No m3u8 link found.');
-    }
-
-    // Fetch and save subtitle if API link found
-    if (subtitleApiLink) {
-      console.log('Fetching subtitle data from API...');
-      try {
-        // Fetch subtitle list from API
-        const response = await axios.get(subtitleApiLink);
-        const subtitles = response.data;
-
-        if (Array.isArray(subtitles) && subtitles.length > 0) {
-          // Find first English subtitle
-          const englishSubtitle = subtitles.find(sub => sub.language === 'en');
-
-          if (englishSubtitle) {
-            console.log('Found English subtitle:', englishSubtitle.display);
-            console.log('Subtitle URL:', englishSubtitle.url);
-
-            // Download the subtitle content
-            const subtitleResponse = await axios.get(englishSubtitle.url);
-            const subtitleContent = subtitleResponse.data;
-
-            // For now, we'll save the URL. In production, you might want to upload the content to storage
-            const { error: subtitleError } = await supabase
-              .from('subtitles')
-              .insert({
-                movie_id: movieUuid,
-                language: 'en',
-                url: englishSubtitle.url
-              });
-
-            if (subtitleError) {
-              console.error('Error saving subtitle:', subtitleError);
-            } else {
-              console.log(`Successfully saved English subtitle for movie ${movieId}`);
-            }
-          } else {
-            console.log('No English subtitle found in the API response.');
-          }
-        } else {
-          console.log('No subtitles returned from API.');
-        }
-      } catch (error) {
-        console.error('Error fetching subtitle data:', error.message);
-      }
-    } else {
-      console.log('No subtitle API link found.');
-    }
-
-  } catch (error) {
-    console.error('Error during navigation:', error);
   } finally {
     await browser.close();
   }
 }
 
-// Get movie ID from command line or use default
-const movieId = process.argv[2] || '1035259';
-getStreamLinks(movieId);
+main();

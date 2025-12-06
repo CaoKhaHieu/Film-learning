@@ -1,0 +1,14 @@
+[2025-12-06T02:44:05.754Z] Movie ID 949709: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-06T02:44:34.072Z] Movie ID 1246049: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-06T02:45:11.719Z] Movie ID 1033462: Missing m3u8 link
+[2025-12-06T03:00:15.486Z] Movie ID 967941: No English subtitle found
+[2025-12-06T03:11:45.222Z] Movie ID 1539104: Unexpected error: Request failed with status code 400
+[2025-12-06T03:18:55.936Z] Movie ID 1116465: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-06T03:19:24.017Z] Movie ID 1054867: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-06T03:19:51.666Z] Movie ID 425274: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-06T03:20:30.106Z] Movie ID 203101: Missing m3u8 link
+
+last_update
+[2025-12-06T04:00:13.513Z] Movie ID 1084242: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-06T04:00:41.533Z] Movie ID 533533: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-06T04:01:10.709Z] Movie ID 1180831: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
