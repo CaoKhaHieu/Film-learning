@@ -30,18 +30,18 @@ export function Footer() {
         <div>
           <h4 className="text-slate-900 font-bold mb-4">Hỗ Trợ</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-yellow-600 transition-colors">Hướng dẫn sử dụng</a></li>
-            <li><a href="#" className="hover:text-yellow-600 transition-colors">Câu hỏi thường gặp</a></li>
-            <li><a href="#" className="hover:text-yellow-600 transition-colors">Liên hệ</a></li>
+            <li><a href="/guide" className="hover:text-yellow-600 transition-colors">Hướng dẫn sử dụng</a></li>
+            <li><a href="/faq" className="hover:text-yellow-600 transition-colors">Câu hỏi thường gặp</a></li>
+            <li><a href="/contact" className="hover:text-yellow-600 transition-colors">Liên hệ</a></li>
           </ul>
         </div>
 
         <div>
           <h4 className="text-slate-900 font-bold mb-4">Về Chúng Tôi</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-yellow-600 transition-colors">Giới thiệu</a></li>
-            <li><a href="#" className="hover:text-yellow-600 transition-colors">Điều khoản sử dụng</a></li>
-            <li><a href="#" className="hover:text-yellow-600 transition-colors">Chính sách bảo mật</a></li>
+            <li><a href="/about" className="hover:text-yellow-600 transition-colors">Giới thiệu</a></li>
+            <li><a href="/terms" className="hover:text-yellow-600 transition-colors">Điều khoản sử dụng</a></li>
+            <li><a href="/privacy" className="hover:text-yellow-600 transition-colors">Chính sách bảo mật</a></li>
           </ul>
         </div>
       </div>
