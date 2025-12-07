@@ -110,7 +110,9 @@ export async function getRelatedMovies(
  * Get all movies by difficulty level (for level pages)
  */
 export async function getAllMoviesByDifficulty(
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  difficulty: 'beginner' | 'intermediate' | 'advanced',
+  offset: number = 0,
+  limit: number = 20
 ): Promise<Movie[]> {
   const supabase = await createClient();
 
@@ -118,7 +120,8 @@ export async function getAllMoviesByDifficulty(
     .from('movies')
     .select('*')
     .eq('difficulty_level', difficulty)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
 
   if (error) {
     console.error(`Error fetching all ${difficulty} movies:`, error);

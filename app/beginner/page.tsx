@@ -1,8 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { getAllMoviesByDifficulty } from '@/service/movie';
-import { transformMovieForRow } from '@/service/movie-utils';
-import { MovieCard } from "@/components/MovieCard";
+import { MovieListWithLoadMore } from "@/components/MovieListWithLoadMore";
 
 export const metadata = {
   title: 'Phim Cấp Độ Cơ Bản - Film Learning',
@@ -10,8 +9,8 @@ export const metadata = {
 };
 
 export default async function BeginnerPage() {
-  // Fetch all beginner movies from service
-  const movieList = await getAllMoviesByDifficulty('beginner');
+  // Fetch initial batch of beginner movies (20 items)
+  const initialMovies = await getAllMoviesByDifficulty('beginner', 0, 20);
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -29,18 +28,12 @@ export default async function BeginnerPage() {
           </p>
         </div>
 
-        {/* Movies Grid */}
-        {movieList.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {movieList.map((movie) => (
-              <MovieCard key={movie.id} {...transformMovieForRow(movie)} className="w-full" />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <p className="text-slate-500 text-lg">Chưa có phim nào trong danh mục này.</p>
-          </div>
-        )}
+        {/* Movies Grid with Load More */}
+        <MovieListWithLoadMore
+          initialMovies={initialMovies}
+          difficulty="beginner"
+          itemsPerPage={20}
+        />
       </div>
 
       <Footer />
