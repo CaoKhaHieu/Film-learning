@@ -31,6 +31,7 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
       poster={movie.poster || undefined}
       subtitleEn={enSubtitle?.url}
       subtitleVi={viSubtitle?.url}
+      movieId={id}
       autoPlay
     />
   );

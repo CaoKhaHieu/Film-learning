@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipForward, SkipBack, ArrowLeft, List, Subtitles } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipForward, SkipBack, ArrowLeft, List, Subtitles, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { BilingualSubtitle, loadBilingualSubtitles } from "@/lib/subtitle-parser";
 import { SubtitleOverlay } from "@/components/SubtitleOverlay";
 import { SubtitleSidebar } from "@/components/SubtitleSidebar";
+import { ReportIssueModal } from "@/components/ReportIssueModal";
 
 interface VideoPlayerProps {
   src: string;
@@ -17,6 +18,7 @@ interface VideoPlayerProps {
   subTitle?: string;
   subtitleEn?: string;
   subtitleVi?: string;
+  movieId?: string;
 }
 
 export function VideoPlayer({
@@ -26,7 +28,8 @@ export function VideoPlayer({
   title,
   subTitle,
   subtitleEn,
-  subtitleVi
+  subtitleVi,
+  movieId
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,6 +45,7 @@ export function VideoPlayer({
   const [showSubtitleSidebar, setShowSubtitleSidebar] = useState(true);
   const [subtitleMode, setSubtitleMode] = useState<'both' | 'en' | 'off'>('both');
   const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [subtitles, setSubtitles] = useState<BilingualSubtitle[]>([]);
   const [currentSubtitle, setCurrentSubtitle] = useState<BilingualSubtitle | null>(null);
   const [sidebarActiveSubtitle, setSidebarActiveSubtitle] = useState<BilingualSubtitle | null>(null);
@@ -316,14 +320,28 @@ export function VideoPlayer({
 
         {/* Top Bar */}
         <div className={`absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300 z-20 ${showControls ? "opacity-100" : "opacity-0"}`}>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 rounded-full" onClick={() => router.back()}>
-              <ArrowLeft className="w-6 h-6" />
-            </Button>
-            <div>
-              <h1 className="text-white font-bold text-lg md:text-xl">{title || "Video Player"}</h1>
-              {subTitle && <p className="text-gray-300 text-sm">{subTitle}</p>}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 rounded-full" onClick={() => router.back()}>
+                <ArrowLeft className="w-6 h-6" />
+              </Button>
+              <div>
+                <h1 className="text-white font-bold text-lg md:text-xl">{title || "Video Player"}</h1>
+                {subTitle && <p className="text-gray-300 text-sm">{subTitle}</p>}
+              </div>
             </div>
+
+            {/* Report Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white hover:text-yellow-400 hover:bg-white/10 px-3 h-9 font-medium"
+              onClick={() => setShowReportModal(true)}
+              title="Báo lỗi video"
+            >
+              <Flag className="w-4 h-4 mr-2" />
+              Báo Lỗi
+            </Button>
           </div>
         </div>
 
@@ -492,6 +510,14 @@ export function VideoPlayer({
         onSubtitleClick={handleSubtitleClick}
         formatTime={formatTime}
         mode={subtitleMode}
+      />
+
+      {/* Report Issue Modal */}
+      <ReportIssueModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        movieId={movieId || ""}
+        movieTitle={title || "Unknown Movie"}
       />
     </div>
   );
