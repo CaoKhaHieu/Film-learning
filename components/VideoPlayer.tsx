@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipForward, SkipBack, ArrowLeft, List } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipForward, SkipBack, ArrowLeft, List, Subtitles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { BilingualSubtitle, loadBilingualSubtitles } from "@/lib/subtitle-parser";
@@ -40,10 +40,30 @@ export function VideoPlayer({
   const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const [showSubtitleSidebar, setShowSubtitleSidebar] = useState(true);
+  const [subtitleMode, setSubtitleMode] = useState<'both' | 'en' | 'off'>('both');
+  const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
   const [subtitles, setSubtitles] = useState<BilingualSubtitle[]>([]);
   const [currentSubtitle, setCurrentSubtitle] = useState<BilingualSubtitle | null>(null);
   const [sidebarActiveSubtitle, setSidebarActiveSubtitle] = useState<BilingualSubtitle | null>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const subtitleMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Close subtitle menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (subtitleMenuRef.current && !subtitleMenuRef.current.contains(event.target as Node)) {
+        setShowSubtitleMenu(false);
+      }
+    };
+
+    if (showSubtitleMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSubtitleMenu]);
 
   // Load subtitles
   useEffect(() => {
@@ -53,6 +73,13 @@ export function VideoPlayer({
     };
     loadSubs();
   }, [subtitleEn, subtitleVi]);
+
+  // Auto-close sidebar when subtitle mode is OFF
+  useEffect(() => {
+    if (subtitleMode === 'off') {
+      setShowSubtitleSidebar(false);
+    }
+  }, [subtitleMode]);
 
   // Initialize HLS
   useEffect(() => {
@@ -238,6 +265,12 @@ export function VideoPlayer({
     }
   };
 
+  const getSubtitleModeLabel = () => {
+    if (subtitleMode === 'both') return 'EN + VI';
+    if (subtitleMode === 'en') return 'EN';
+    return 'OFF';
+  };
+
   return (
     <div
       ref={containerRef}
@@ -279,7 +312,7 @@ export function VideoPlayer({
         </video>
 
         {/* Subtitle Overlay */}
-        <SubtitleOverlay currentSubtitle={currentSubtitle} />
+        <SubtitleOverlay currentSubtitle={currentSubtitle} mode={subtitleMode} />
 
         {/* Top Bar */}
         <div className={`absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300 z-20 ${showControls ? "opacity-100" : "opacity-0"}`}>
@@ -368,6 +401,71 @@ export function VideoPlayer({
             </div>
 
             <div className="flex items-center gap-4">
+              {/* Subtitle Mode Dropdown */}
+              <div className="relative" ref={subtitleMenuRef}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`text-white hover:text-yellow-500 px-3 h-9 font-bold ${subtitleMode !== 'off' ? 'text-yellow-500 bg-white/10' : ''}`}
+                  onClick={() => setShowSubtitleMenu(!showSubtitleMenu)}
+                  title="Chế độ phụ đề"
+                >
+                  <Subtitles className="w-5 h-5 mr-2" />
+                  {getSubtitleModeLabel()}
+                </Button>
+
+                {/* Dropdown Menu */}
+                {showSubtitleMenu && (
+                  <div className="absolute bottom-full mb-2 right-0 bg-black/95 backdrop-blur-sm border border-white/10 rounded-lg shadow-xl overflow-hidden min-w-[160px] animate-in fade-in slide-in-from-bottom-2 duration-200">
+                    <button
+                      onClick={() => {
+                        setSubtitleMode('both');
+                        setShowSubtitleMenu(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${subtitleMode === 'both'
+                        ? 'bg-yellow-500/20 text-yellow-400'
+                        : 'text-white hover:bg-white/10'
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Subtitles className="w-4 h-4" />
+                        <span>EN + VI</span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSubtitleMode('en');
+                        setShowSubtitleMenu(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${subtitleMode === 'en'
+                        ? 'bg-yellow-500/20 text-yellow-400'
+                        : 'text-white hover:bg-white/10'
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Subtitles className="w-4 h-4" />
+                        <span>EN</span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSubtitleMode('off');
+                        setShowSubtitleMenu(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${subtitleMode === 'off'
+                        ? 'bg-yellow-500/20 text-yellow-400'
+                        : 'text-white hover:bg-white/10'
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Subtitles className="w-4 h-4" />
+                        <span>OFF</span>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -393,6 +491,7 @@ export function VideoPlayer({
         onClose={() => setShowSubtitleSidebar(false)}
         onSubtitleClick={handleSubtitleClick}
         formatTime={formatTime}
+        mode={subtitleMode}
       />
     </div>
   );

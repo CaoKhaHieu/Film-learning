@@ -10,6 +10,7 @@ interface SubtitleSidebarProps {
   onClose: () => void;
   onSubtitleClick: (startTime: number) => void;
   formatTime: (time: number) => string;
+  mode: 'both' | 'en' | 'off';
 }
 
 type Theme = 'light' | 'dark';
@@ -20,7 +21,8 @@ export function SubtitleSidebar({
   isOpen,
   onClose,
   onSubtitleClick,
-  formatTime
+  formatTime,
+  mode
 }: SubtitleSidebarProps) {
   const subtitleListRef = useRef<HTMLDivElement>(null);
   const [showBackButton, setShowBackButton] = useState(false);
@@ -236,7 +238,7 @@ export function SubtitleSidebar({
       {/* Header */}
       <div className={`p-4 border-b ${styles.header} flex items-center justify-between z-10`}>
         <h3 className={`${styles.headerText} font-bold text-sm uppercase tracking-wider`}>
-          Phụ đề song ngữ
+          {mode === 'both' ? 'Phụ đề song ngữ' : mode === 'en' ? 'Phụ đề tiếng Anh' : 'Phụ đề (Tắt)'}
         </h3>
         <div className="flex items-center gap-2">
           {/* Theme Toggle */}
@@ -305,7 +307,7 @@ export function SubtitleSidebar({
             )}
 
             {/* Vietnamese Subtitle */}
-            {sub.vi && (
+            {mode === 'both' && sub.vi && (
               <p
                 className={`text-sm font-medium leading-relaxed ${currentSubtitle?.id === sub.id
                   ? styles.textViActive
