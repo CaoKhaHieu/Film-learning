@@ -24,28 +24,68 @@ export default function AdminMoviesPage() {
   const supabase = createClient();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterDifficulty, setFilterDifficulty] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
   const [filterVIP, setFilterVIP] = useState<"all" | "vip" | "free">("all");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const ITEMS_PER_PAGE = 20;
 
   useEffect(() => {
-    fetchMovies();
+    fetchMovies(true);
   }, []);
 
-  const fetchMovies = async () => {
-    setLoading(true);
+  const fetchMovies = async (reset = false) => {
+    if (reset) {
+      setLoading(true);
+      setPage(0);
+      setMovies([]);
+    } else {
+      setLoadingMore(true);
+    }
+
     try {
+      const currentPage = reset ? 0 : page;
+      const from = currentPage * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      // Get total count
+      const { count } = await supabase
+        .from("movies")
+        .select("*", { count: "exact", head: true });
+
+      setTotalCount(count || 0);
+
+      // Get paginated data
       const { data, error } = await supabase
         .from("movies")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
-      setMovies(data || []);
+
+      if (reset) {
+        setMovies(data || []);
+      } else {
+        setMovies(prev => [...prev, ...(data || [])]);
+      }
+
+      setHasMore((data?.length || 0) === ITEMS_PER_PAGE);
+      setPage(currentPage + 1);
     } catch (error) {
       console.error("Error fetching movies:", error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      fetchMovies(false);
     }
   };
 
@@ -81,6 +121,25 @@ export default function AdminMoviesPage() {
     }
   };
 
+  const updateDifficultyLevel = async (id: string, newLevel: string) => {
+    try {
+      const { error } = await supabase
+        .from("movies")
+        .update({ difficulty_level: newLevel })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      // Update local state immediately
+      setMovies(movies.map(m =>
+        m.id === id ? { ...m, difficulty_level: newLevel } : m
+      ));
+    } catch (error) {
+      console.error("Error updating difficulty level:", error);
+      alert("Lỗi khi cập nhật độ khó!");
+    }
+  };
+
   const filteredMovies = movies.filter((movie) => {
     const matchesSearch =
       movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -109,7 +168,9 @@ export default function AdminMoviesPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">Quản Lý Phim</h1>
-            <p className="text-gray-400">Tổng số: {filteredMovies.length} phim</p>
+            <p className="text-gray-400">
+              Hiển thị: {filteredMovies.length} / Tổng: {totalCount} phim
+            </p>
           </div>
           <Link href="/admin/movies/new">
             <Button className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold">
@@ -217,17 +278,23 @@ export default function AdminMoviesPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {movie.difficulty_level && (
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${movie.difficulty_level === 'beginner'
-                            ? 'bg-green-500/20 text-green-400'
-                            : movie.difficulty_level === 'intermediate'
-                              ? 'bg-yellow-500/20 text-yellow-400'
-                              : 'bg-red-500/20 text-red-400'
-                            }`}>
-                            {movie.difficulty_level === 'beginner' ? 'Dễ' :
-                              movie.difficulty_level === 'intermediate' ? 'Trung bình' : 'Khó'}
-                          </span>
-                        )}
+                        <select
+                          value={movie.difficulty_level || ""}
+                          onChange={(e) => updateDifficultyLevel(movie.id, e.target.value)}
+                          className={`px-3 py-1.5 rounded text-xs font-medium border-2 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 ${movie.difficulty_level === 'beginner'
+                              ? 'bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 focus:ring-green-500'
+                              : movie.difficulty_level === 'intermediate'
+                                ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30 focus:ring-yellow-500'
+                                : movie.difficulty_level === 'advanced'
+                                  ? 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30 focus:ring-red-500'
+                                  : 'bg-gray-500/20 text-gray-400 border-gray-500/30 hover:bg-gray-500/30 focus:ring-gray-500'
+                            }`}
+                        >
+                          <option value="" className="bg-zinc-800 text-white">Chưa đặt</option>
+                          <option value="beginner" className="bg-zinc-800 text-white">Dễ</option>
+                          <option value="intermediate" className="bg-zinc-800 text-white">Trung bình</option>
+                          <option value="advanced" className="bg-zinc-800 text-white">Khó</option>
+                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <button
@@ -277,6 +344,19 @@ export default function AdminMoviesPage() {
             </table>
           </div>
         </div>
+
+        {/* Load More Button */}
+        {hasMore && !loading && filteredMovies.length > 0 && (
+          <div className="mt-6 flex justify-center">
+            <Button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-8"
+            >
+              {loadingMore ? "Đang tải..." : "Tải thêm"}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
