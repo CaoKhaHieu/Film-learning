@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SearchModal } from "./SearchModal";
 
 export function Navbar() {
   const router = useRouter();
@@ -14,7 +13,6 @@ export function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isVIP, setIsVIP] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     // Get current user
@@ -126,10 +124,10 @@ export function Navbar() {
           variant="ghost"
           size="icon"
           className={`transition-all hover:scale-110 ${isScrolled
-              ? "text-slate-700 hover:bg-slate-100"
-              : "text-white/90 hover:bg-white/10"
+            ? "text-slate-700 hover:bg-slate-100"
+            : "text-white/90 hover:bg-white/10"
             }`}
-          onClick={() => setShowSearch(true)}
+          onClick={() => router.push("/search")}
         >
           <Search className="h-5 w-5" />
         </Button>
@@ -222,9 +220,6 @@ export function Navbar() {
           </>
         )}
       </div>
-
-      {/* Search Modal */}
-      <SearchModal isOpen={showSearch} onClose={() => setShowSearch(false)} />
     </nav>
   );
 }
