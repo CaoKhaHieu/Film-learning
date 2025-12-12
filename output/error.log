@@ -65,3 +65,6 @@
 [2025-12-06T10:08:38.777Z] Movie ID 1151031: Missing m3u8 link
 [2025-12-06T10:09:30.210Z] Movie ID 603: Missing m3u8 link
 [2025-12-06T10:10:08.773Z] Movie ID 1267319: Missing m3u8 link
+[2025-12-08T16:02:35.555Z] Movie ID 1382406: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-08T16:02:46.471Z] Movie ID 1519168: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-08T16:02:57.286Z] Movie ID 1267905: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
