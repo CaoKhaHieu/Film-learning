@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Home, Film, Flag, Users, Settings, BarChart3, FileText } from "lucide-react";
+import { Home, Film, Flag, Users, Settings, BarChart3, FileText, MessageSquare } from "lucide-react";
 
 const menuItems = [
   {
@@ -19,6 +19,11 @@ const menuItems = [
     title: "Báo cáo lỗi",
     icon: Flag,
     href: "/admin/reports",
+  },
+  {
+    title: "Yêu cầu phim",
+    icon: MessageSquare,
+    href: "/admin/requests",
   },
   {
     title: "Người dùng",
@@ -62,8 +67,8 @@ export function AdminSidebar() {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive
-                    ? "bg-yellow-400 text-slate-900 shadow-md"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-yellow-400 text-slate-900 shadow-md"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
               >
                 <Icon className="w-5 h-5" />

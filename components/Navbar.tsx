@@ -116,6 +116,9 @@ export function Navbar() {
           <Link href="/beginner" className="hover:text-yellow-500 transition-colors">Cơ Bản</Link>
           <Link href="/intermediate" className="hover:text-yellow-500 transition-colors">Trung Cấp</Link>
           <Link href="/advanced" className="hover:text-yellow-500 transition-colors">Nâng Cao</Link>
+          <Link href="/request" className="hover:text-yellow-500 transition-colors flex items-center gap-1">
+            Yêu Cầu Phim
+          </Link>
         </div>
       </div>
 
