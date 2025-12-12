@@ -3,7 +3,24 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Search, Crown } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Edit, Trash2, Search, Crown, Loader2, Film } from "lucide-react";
 import Link from "next/link";
 
 type Movie = {
@@ -26,8 +43,8 @@ export default function AdminMoviesPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterDifficulty, setFilterDifficulty] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
-  const [filterVIP, setFilterVIP] = useState<"all" | "vip" | "free">("all");
+  const [filterDifficulty, setFilterDifficulty] = useState<string>("all");
+  const [filterVIP, setFilterVIP] = useState<string>("all");
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -98,7 +115,7 @@ export default function AdminMoviesPage() {
       if (error) throw error;
 
       setMovies(movies.filter((m) => m.id !== id));
-      alert("Đã xóa phim thành công!");
+      // alert("Đã xóa phim thành công!"); // Removed alert for cleaner UX
     } catch (error) {
       console.error("Error deleting movie:", error);
       alert("Lỗi khi xóa phim!");
@@ -114,7 +131,10 @@ export default function AdminMoviesPage() {
 
       if (error) throw error;
 
-      fetchMovies();
+      // Optimistic update
+      setMovies(movies.map(m =>
+        m.id === id ? { ...m, is_vip: !currentStatus } : m
+      ));
     } catch (error) {
       console.error("Error toggling VIP status:", error);
       alert("Lỗi khi cập nhật trạng thái VIP!");
@@ -153,211 +173,211 @@ export default function AdminMoviesPage() {
     return matchesSearch && matchesDifficulty && matchesVIP;
   });
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
-        <div className="text-white text-xl">Đang tải...</div>
-      </div>
-    );
-  }
+  const getDifficultyBadge = (level: string | null) => {
+    switch (level) {
+      case 'beginner':
+        return <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">Dễ</Badge>;
+      case 'intermediate':
+        return <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200">Trung bình</Badge>;
+      case 'advanced':
+        return <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">Khó</Badge>;
+      default:
+        return <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-200">Chưa đặt</Badge>;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Quản Lý Phim</h1>
-            <p className="text-gray-400">
-              Hiển thị: {filteredMovies.length} / Tổng: {totalCount} phim
-            </p>
-          </div>
-          <Link href="/admin/movies/new">
-            <Button className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold">
-              <Plus className="mr-2 h-5 w-5" /> Thêm Phim Mới
-            </Button>
-          </Link>
+    <div className="p-8 max-w-7xl mx-auto min-h-screen bg-slate-50">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Quản Lý Phim</h1>
+          <p className="text-slate-500 mt-1">
+            Hiển thị: {filteredMovies.length} / Tổng: {totalCount} phim
+          </p>
         </div>
-
-        {/* Filters */}
-        <div className="bg-zinc-900 rounded-lg p-6 mb-6 space-y-4">
-          <div className="flex flex-wrap gap-4">
-            {/* Search */}
-            <div className="flex-1 min-w-[300px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm phim (Tên Anh/Việt)..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-yellow-500"
-                />
-              </div>
-            </div>
-
-            {/* Difficulty Filter */}
-            <select
-              value={filterDifficulty}
-              onChange={(e) => setFilterDifficulty(e.target.value as any)}
-              className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:outline-none focus:border-yellow-500"
-            >
-              <option value="all">Tất cả độ khó</option>
-              <option value="beginner">Dễ</option>
-              <option value="intermediate">Trung bình</option>
-              <option value="advanced">Khó</option>
-            </select>
-
-            {/* VIP Filter */}
-            <select
-              value={filterVIP}
-              onChange={(e) => setFilterVIP(e.target.value as any)}
-              className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-md text-white focus:outline-none focus:border-yellow-500"
-            >
-              <option value="all">Tất cả</option>
-              <option value="vip">VIP</option>
-              <option value="free">Miễn phí</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Movies Table */}
-        <div className="bg-zinc-900 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-zinc-800">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Phim</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Độ khó</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Trạng thái</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Video URL</th>
-                  <th className="px-6 py-4 text-right text-sm font-semibold">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800">
-                {filteredMovies.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
-                      Không tìm thấy phim nào
-                    </td>
-                  </tr>
-                ) : (
-                  filteredMovies.map((movie) => (
-                    <tr key={movie.id} className="hover:bg-zinc-800/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-4">
-                          <div className="relative w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-zinc-800 group">
-                            {movie.poster ? (
-                              <img
-                                src={movie.poster}
-                                alt={movie.title}
-                                className="object-cover w-full h-full"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-600">
-                                No Image
-                              </div>
-                            )}
-                            {movie.tmdb_id && (
-                              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-[10px] text-center text-gray-300 py-0.5">
-                                ID: {movie.tmdb_id}
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-semibold text-white">{movie.title_vi || movie.title}</div>
-                            {movie.title_vi && (
-                              <div className="text-xs text-gray-400">{movie.title}</div>
-                            )}
-                            {(movie.overview || movie.description) && (
-                              <div className="text-sm text-gray-500 line-clamp-1 mt-1 max-w-xs">
-                                {movie.overview || movie.description}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <select
-                          value={movie.difficulty_level || ""}
-                          onChange={(e) => updateDifficultyLevel(movie.id, e.target.value)}
-                          className={`px-3 py-1.5 rounded text-xs font-medium border-2 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 ${movie.difficulty_level === 'beginner'
-                              ? 'bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 focus:ring-green-500'
-                              : movie.difficulty_level === 'intermediate'
-                                ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30 focus:ring-yellow-500'
-                                : movie.difficulty_level === 'advanced'
-                                  ? 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30 focus:ring-red-500'
-                                  : 'bg-gray-500/20 text-gray-400 border-gray-500/30 hover:bg-gray-500/30 focus:ring-gray-500'
-                            }`}
-                        >
-                          <option value="" className="bg-zinc-800 text-white">Chưa đặt</option>
-                          <option value="beginner" className="bg-zinc-800 text-white">Dễ</option>
-                          <option value="intermediate" className="bg-zinc-800 text-white">Trung bình</option>
-                          <option value="advanced" className="bg-zinc-800 text-white">Khó</option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => toggleVIP(movie.id, movie.is_vip)}
-                          className={`flex items-center gap-2 px-3 py-1 rounded text-sm font-medium transition-colors ${movie.is_vip
-                            ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
-                            : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
-                            }`}
-                        >
-                          {movie.is_vip ? (
-                            <>
-                              <Crown className="h-4 w-4" /> VIP
-                            </>
-                          ) : (
-                            <>
-                              Miễn phí
-                            </>
-                          )}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-400 max-w-xs truncate">
-                          {movie.video_url || '-'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link href={`/admin/movies/${movie.id}`}>
-                            <Button variant="ghost" size="icon" className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteMovie(movie.id, movie.title)}
-                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Load More Button */}
-        {hasMore && !loading && filteredMovies.length > 0 && (
-          <div className="mt-6 flex justify-center">
-            <Button
-              onClick={loadMore}
-              disabled={loadingMore}
-              className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-8"
-            >
-              {loadingMore ? "Đang tải..." : "Tải thêm"}
-            </Button>
-          </div>
-        )}
+        <Link href="/admin/movies/new">
+          <Button className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold shadow-sm">
+            <Plus className="mr-2 h-4 w-4" /> Thêm Phim Mới
+          </Button>
+        </Link>
       </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-xl p-4 mb-6 border border-slate-200 shadow-sm flex flex-wrap gap-4 items-center">
+        <div className="relative flex-1 min-w-[300px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="Tìm kiếm phim (Tên Anh/Việt)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 bg-slate-50 border-slate-200"
+          />
+        </div>
+
+        <Select value={filterDifficulty} onValueChange={setFilterDifficulty}>
+          <SelectTrigger className="w-[180px] bg-slate-50 border-slate-200">
+            <SelectValue placeholder="Độ khó" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả độ khó</SelectItem>
+            <SelectItem value="beginner">Dễ</SelectItem>
+            <SelectItem value="intermediate">Trung bình</SelectItem>
+            <SelectItem value="advanced">Khó</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={filterVIP} onValueChange={setFilterVIP}>
+          <SelectTrigger className="w-[150px] bg-slate-50 border-slate-200">
+            <SelectValue placeholder="Loại phim" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả</SelectItem>
+            <SelectItem value="vip">VIP</SelectItem>
+            <SelectItem value="free">Miễn phí</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Movies Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50 hover:bg-slate-50">
+              <TableHead className="w-[400px]">Phim</TableHead>
+              <TableHead>Độ khó</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead>Video URL</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-32 text-center text-slate-500">
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Đang tải dữ liệu...
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : filteredMovies.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-32 text-center text-slate-500">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Film className="w-8 h-8 text-slate-300" />
+                    <p>Không tìm thấy phim nào</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredMovies.map((movie) => (
+                <TableRow key={movie.id} className="hover:bg-slate-50/50">
+                  <TableCell>
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-12 h-16 flex-shrink-0 rounded-md overflow-hidden bg-slate-100 border border-slate-200">
+                        {movie.poster ? (
+                          <img
+                            src={movie.poster}
+                            alt={movie.title}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-400">
+                            <Film className="w-4 h-4" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-slate-900">{movie.title_vi || movie.title}</div>
+                        {movie.title_vi && (
+                          <div className="text-xs text-slate-500">{movie.title}</div>
+                        )}
+                        <div className="text-xs text-slate-400 mt-0.5">ID: {movie.tmdb_id || 'N/A'}</div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      defaultValue={movie.difficulty_level || ""}
+                      onValueChange={(value) => updateDifficultyLevel(movie.id, value)}
+                    >
+                      <SelectTrigger className="w-[130px] h-8 text-xs bg-transparent border-slate-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="beginner">Dễ</SelectItem>
+                        <SelectItem value="intermediate">Trung bình</SelectItem>
+                        <SelectItem value="advanced">Khó</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleVIP(movie.id, movie.is_vip)}
+                      className={`h-7 px-2 text-xs font-medium border ${movie.is_vip
+                        ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                        }`}
+                    >
+                      {movie.is_vip ? (
+                        <>
+                          <Crown className="h-3 w-3 mr-1" /> VIP
+                        </>
+                      ) : (
+                        "Miễn phí"
+                      )}
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-xs text-slate-500 max-w-[150px] truncate" title={movie.video_url || ""}>
+                      {movie.video_url || '-'}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Link href={`/admin/movies/${movie.id}`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteMovie(movie.id, movie.title)}
+                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Load More Button */}
+      {hasMore && !loading && filteredMovies.length > 0 && (
+        <div className="mt-6 flex justify-center">
+          <Button
+            onClick={loadMore}
+            disabled={loadingMore}
+            variant="outline"
+            className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 min-w-[150px]"
+          >
+            {loadingMore ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang tải...
+              </>
+            ) : (
+              "Tải thêm phim"
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
