@@ -18,7 +18,9 @@ interface Movie {
   created_at: string;
 }
 
-export default function SearchPage() {
+import { Suspense } from "react";
+
+function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
@@ -227,5 +229,17 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-yellow-400 border-r-transparent"></div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }
