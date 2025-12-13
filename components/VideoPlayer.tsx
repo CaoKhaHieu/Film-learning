@@ -6,6 +6,7 @@ import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipForward, SkipBac
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { BilingualSubtitle, loadBilingualSubtitles } from "@/lib/subtitle-parser";
+import { createClient } from "@/lib/supabase";
 import { SubtitleOverlay } from "@/components/SubtitleOverlay";
 import { SubtitleSidebar } from "@/components/SubtitleSidebar";
 import { ReportIssueModal } from "@/components/ReportIssueModal";
@@ -77,6 +78,80 @@ export function VideoPlayer({
     };
     loadSubs();
   }, [subtitleEn, subtitleVi]);
+
+  // Load saved progress
+  const supabase = createClient();
+  const lastSavedTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!movieId) return;
+
+    const loadProgress = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('watch_progress')
+        .select('watched_time')
+        .eq('user_id', user.id)
+        .eq('movie_id', movieId)
+        .single();
+
+      if (data && videoRef.current) {
+        // Only seek if we are at the beginning
+        if (videoRef.current.currentTime < 1) {
+          videoRef.current.currentTime = data.watched_time;
+          lastSavedTimeRef.current = data.watched_time;
+        }
+      }
+    };
+
+    loadProgress();
+  }, [movieId]);
+
+  // Save progress function
+  const saveProgress = async (currentTime: number, duration: number) => {
+    if (!movieId) return;
+
+    // Don't save if time hasn't changed significantly (e.g. paused)
+    if (Math.abs(currentTime - lastSavedTimeRef.current) < 2 && currentTime !== 0) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    try {
+      await supabase.from('watch_progress').upsert({
+        user_id: user.id,
+        movie_id: movieId,
+        watched_time: Math.floor(currentTime),
+        duration: Math.floor(duration),
+        updated_at: new Date().toISOString()
+      });
+      lastSavedTimeRef.current = currentTime;
+    } catch (error) {
+      console.error("Error saving progress:", error);
+    }
+  };
+
+  // Save progress periodically (every 30s) and on Pause
+  useEffect(() => {
+    if (!movieId) return;
+
+    const interval = setInterval(() => {
+      if (videoRef.current && isPlaying) {
+        saveProgress(videoRef.current.currentTime, videoRef.current.duration);
+      }
+    }, 15000); // Save every 15 seconds
+
+    return () => clearInterval(interval);
+  }, [movieId, isPlaying]);
+
+  // Save on Pause
+  useEffect(() => {
+    if (!isPlaying && videoRef.current) {
+      saveProgress(videoRef.current.currentTime, videoRef.current.duration);
+    }
+  }, [isPlaying]);
 
   // Auto-close sidebar when subtitle mode is OFF
   useEffect(() => {

@@ -13,11 +13,12 @@ interface MovieCardProps {
   quality?: string;
   background_image?: string;
   className?: string;
+  progress?: number;
 }
 
-export function MovieCard({ id, title, title_vi, image, category, year, quality, background_image, className }: MovieCardProps) {
+export function MovieCard({ id, title, title_vi, image, category, year, quality, background_image, className, progress }: MovieCardProps) {
   return (
-    <Link href={`/movie/${id}`}>
+    <Link href={`/movie/${id}${progress !== undefined ? '/watch' : ''}`}>
       <div className={cn(
         "group relative flex-shrink-0 cursor-pointer transition-all duration-300 hover:-translate-y-1",
         className
@@ -40,6 +41,16 @@ export function MovieCard({ id, title, title_vi, image, category, year, quality,
               <PlayCircle className="w-8 h-8 text-white fill-white" />
             </div>
           </div>
+
+          {/* Progress Bar */}
+          {progress !== undefined && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700/50">
+              <div
+                className="h-full bg-yellow-500"
+                style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="mt-3 px-1 space-y-1">

@@ -3,6 +3,7 @@ import { Hero } from "@/components/Hero";
 import { MovieRow } from "@/components/MovieRow";
 import { Top10Row } from "@/components/Top10Row";
 import { Footer } from "@/components/Footer";
+import { ContinueWatchingRow } from "@/components/ContinueWatchingRow";
 import { getHomepageMovies } from '@/service/movie';
 
 export default async function Home() {
@@ -16,6 +17,7 @@ export default async function Home() {
       <Hero />
 
       <div className="container mx-auto px-4 py-12 space-y-16">
+        <ContinueWatchingRow />
         <Top10Row title="Top 5 Phim Nên Học" movies={topMovies} />
         <MovieRow title="Phim Cấp Độ Cơ Bản (Beginner)" movies={beginnerMovies} />
         <MovieRow title="Phim Cấp Độ Trung Cấp (Intermediate)" movies={intermediateMovies} />
