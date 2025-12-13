@@ -268,7 +268,7 @@ async function processMovie(movieId, browser) {
 }
 
 async function main() {
-  const idsFile = path.join(__dirname, 'movie-ids-1500.txt');
+  const idsFile = path.join(__dirname, 'movie-ids-data.txt');
   const content = fs.readFileSync(idsFile, 'utf-8');
   const allMovieIds = content.split('\n')
     .map(line => line.trim())
