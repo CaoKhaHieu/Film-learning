@@ -27,6 +27,7 @@
     "puppeteer": "^24.32.0",
     "react": "19.2.1",
     "react-dom": "19.2.0",
+    "react-virtuoso": "^4.17.0",
     "srt-parser-2": "^1.2.3",
     "tailwind-merge": "^3.4.0"
   },

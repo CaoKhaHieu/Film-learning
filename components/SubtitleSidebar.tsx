@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { X, ChevronDown, ChevronUp, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BilingualSubtitle } from "@/lib/subtitle-parser";
 import { InteractiveSubtitle } from "./InteractiveSubtitle";
 import { WordDefinitionModal } from "./WordDefinitionModal";
+import { Virtuoso, VirtuosoHandle, ListRange } from 'react-virtuoso';
 
 interface SubtitleSidebarProps {
   subtitles: BilingualSubtitle[];
@@ -30,14 +31,15 @@ export function SubtitleSidebar({
   movieId,
   onPauseRequest
 }: SubtitleSidebarProps) {
-  const subtitleListRef = useRef<HTMLDivElement>(null);
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [showBackButton, setShowBackButton] = useState(false);
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
   const [theme, setTheme] = useState<Theme>('dark');
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const autoScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastScrollTop = useRef(0);
+
+  // Refs for state management without re-renders
   const isAutoScrolling = useRef(false);
+  const visibleRange = useRef<ListRange>({ startIndex: 0, endIndex: 0 });
+  const lastSubtitleId = useRef<number | null>(null);
 
   // Modal state
   const [selectedWord, setSelectedWord] = useState<string>("");
@@ -108,129 +110,89 @@ export function SubtitleSidebar({
 
   const styles = themeStyles[theme];
 
-  // Check if current subtitle is in view
-  const isCurrentSubtitleInView = (): boolean => {
-    if (!currentSubtitle || !subtitleListRef.current) return true;
+  // Helper to check visibility
+  const checkVisibility = useCallback(() => {
+    if (!currentSubtitle) return;
 
-    const activeElement = subtitleListRef.current.querySelector(
-      `[data-id="${currentSubtitle.id}"]`
-    ) as HTMLElement;
+    const index = subtitles.findIndex(s => s.id === currentSubtitle.id);
+    if (index === -1) return;
 
-    if (!activeElement) return true;
+    const { startIndex, endIndex } = visibleRange.current;
 
-    const containerRect = subtitleListRef.current.getBoundingClientRect();
-    const elementRect = activeElement.getBoundingClientRect();
+    // Check if the subtitle is within the visible range
+    // We add a small buffer to ensure it's comfortably visible
+    const isVisible = index >= startIndex && index <= endIndex;
 
-    // Check if element is in the middle 60% of the container (comfortable viewing area)
-    const containerMiddleStart = containerRect.top + containerRect.height * 0.2;
-    const containerMiddleEnd = containerRect.top + containerRect.height * 0.8;
+    if (!isVisible && !isAutoScrolling.current) {
+      setShowBackButton(true);
+      // Determine direction
+      setScrollDirection(index < startIndex ? 'up' : 'down');
+    } else {
+      setShowBackButton(false);
+    }
+  }, [currentSubtitle, subtitles]);
 
-    return elementRect.top >= containerMiddleStart && elementRect.bottom <= containerMiddleEnd;
+  // Handle range changes from Virtuoso
+  const handleRangeChanged = (range: ListRange) => {
+    visibleRange.current = range;
+    // Only check visibility if we are NOT auto-scrolling
+    if (!isAutoScrolling.current) {
+      checkVisibility();
+    }
   };
 
-  // Detect user manual scroll and direction
+  // Auto-scroll logic
   useEffect(() => {
-    const handleScroll = () => {
-      if (!subtitleListRef.current || isAutoScrolling.current) return;
+    if (!isOpen || !currentSubtitle || !virtuosoRef.current) return;
 
-      const currentScrollTop = subtitleListRef.current.scrollTop;
-      const scrollDelta = currentScrollTop - lastScrollTop.current;
+    const index = subtitles.findIndex(s => s.id === currentSubtitle.id);
+    if (index === -1) return;
 
-      // Only detect significant scroll (> 10px to avoid jitter)
-      if (Math.abs(scrollDelta) > 10) {
-        // Determine scroll direction
-        setScrollDirection(scrollDelta > 0 ? 'down' : 'up');
+    // Detect if this is a seek (large jump) or just next subtitle
+    const prevId = lastSubtitleId.current;
+    const prevIndex = prevId !== null ? subtitles.findIndex(s => s.id === prevId) : -1;
+    const isSequential = prevIndex !== -1 && Math.abs(index - prevIndex) <= 1;
 
-        // Check if current subtitle is still in view
-        const inView = isCurrentSubtitleInView();
-        setShowBackButton(!inView);
+    lastSubtitleId.current = currentSubtitle.id;
 
-        // Clear existing timeout
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
+    // If it's a seek (non-sequential) OR we are in "follow mode" (back button hidden), auto-scroll
+    if (!isSequential || !showBackButton) {
+      isAutoScrolling.current = true;
 
-        // Hide button after 5 seconds of no scrolling if subtitle is in view
-        scrollTimeoutRef.current = setTimeout(() => {
-          if (isCurrentSubtitleInView()) {
-            setShowBackButton(false);
-          }
-        }, 5000);
-      }
+      virtuosoRef.current.scrollToIndex({
+        index,
+        align: 'center',
+        behavior: 'smooth'
+      });
 
-      lastScrollTop.current = currentScrollTop;
-    };
-
-    const listElement = subtitleListRef.current;
-    if (listElement) {
-      listElement.addEventListener('scroll', handleScroll, { passive: true });
+      // Reset auto-scrolling flag after animation
+      // We use a timeout slightly longer than standard smooth scroll duration
+      setTimeout(() => {
+        isAutoScrolling.current = false;
+        // Re-check visibility after scroll finishes to ensure button state is correct
+        checkVisibility();
+      }, 800);
     }
-
-    return () => {
-      if (listElement) {
-        listElement.removeEventListener('scroll', handleScroll);
-      }
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-    };
-  }, [currentSubtitle]);
-
-  // Auto-scroll to active subtitle (only when button is not showing)
-  useEffect(() => {
-    if (isOpen && currentSubtitle && subtitleListRef.current && !showBackButton) {
-      const activeElement = subtitleListRef.current.querySelector(
-        `[data-id="${currentSubtitle.id}"]`
-      );
-
-      if (activeElement && !isCurrentSubtitleInView()) {
-        isAutoScrolling.current = true;
-        activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
-
-        // Clear existing timeout
-        if (autoScrollTimeoutRef.current) {
-          clearTimeout(autoScrollTimeoutRef.current);
-        }
-
-        // Reset auto-scrolling flag after animation
-        autoScrollTimeoutRef.current = setTimeout(() => {
-          isAutoScrolling.current = false;
-        }, 1000);
-      }
-    }
-
-    // Cleanup on unmount or dependency change
-    return () => {
-      if (autoScrollTimeoutRef.current) {
-        clearTimeout(autoScrollTimeoutRef.current);
-      }
-    };
-  }, [currentSubtitle, isOpen, showBackButton]);
+  }, [currentSubtitle, isOpen, subtitles, showBackButton, checkVisibility]);
 
   // Scroll to current subtitle when button clicked
   const scrollToCurrent = () => {
-    if (!currentSubtitle || !subtitleListRef.current) return;
+    if (!currentSubtitle || !virtuosoRef.current) return;
 
-    const activeElement = subtitleListRef.current.querySelector(
-      `[data-id="${currentSubtitle.id}"]`
-    );
-
-    if (activeElement) {
+    const index = subtitles.findIndex(s => s.id === currentSubtitle.id);
+    if (index !== -1) {
       isAutoScrolling.current = true;
-      activeElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      setShowBackButton(false); // Hide button immediately
 
-      // Hide button immediately
-      setShowBackButton(false);
+      virtuosoRef.current.scrollToIndex({
+        index,
+        align: 'center',
+        behavior: 'smooth'
+      });
 
-      // Clear existing timeout
-      if (autoScrollTimeoutRef.current) {
-        clearTimeout(autoScrollTimeoutRef.current);
-      }
-
-      // Reset auto-scrolling flag after animation
-      autoScrollTimeoutRef.current = setTimeout(() => {
+      setTimeout(() => {
         isAutoScrolling.current = false;
-      }, 1000);
+      }, 800);
     }
   };
 
@@ -238,17 +200,7 @@ export function SubtitleSidebar({
   useEffect(() => {
     if (!isOpen) {
       setShowBackButton(false);
-      lastScrollTop.current = 0;
-
-      // Clear all timeouts when closing
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-        scrollTimeoutRef.current = null;
-      }
-      if (autoScrollTimeoutRef.current) {
-        clearTimeout(autoScrollTimeoutRef.current);
-        autoScrollTimeoutRef.current = null;
-      }
+      isAutoScrolling.current = false;
     }
   }, [isOpen]);
 
@@ -291,79 +243,82 @@ export function SubtitleSidebar({
         </div>
 
         {/* Subtitle List */}
-        <div
-          ref={subtitleListRef}
-          className={`flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin ${styles.scrollbar}`}
-        >
-          {subtitles.map((sub) => (
-            <div
-              key={sub.id}
-              data-id={sub.id}
-              onClick={() => onSubtitleClick(sub.startTime)}
-              className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border group/item ${currentSubtitle?.id === sub.id
-                ? styles.itemActive
-                : styles.itemInactive
-                }`}
-            >
-              {/* Timestamp */}
-              <div className="flex justify-between items-start mb-1.5">
-                <span
-                  className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${currentSubtitle?.id === sub.id
-                    ? styles.timestampActive
-                    : styles.timestampInactive
-                    }`}
-                >
-                  {formatTime(sub.startTime)}
-                </span>
-              </div>
-
-              {/* English Subtitle */}
-              {sub.en && (
-                <div
-                  className={`text-base font-semibold mb-2 leading-relaxed ${currentSubtitle?.id === sub.id
-                    ? styles.textEnActive
-                    : styles.textEnInactive
-                    }`}
-                >
-                  <InteractiveSubtitle
-                    text={sub.en}
-                    onWordClick={(word) => handleWordClick(word, sub.en, sub.vi)}
-                  />
+        <div className="flex-1 overflow-hidden relative">
+          <Virtuoso
+            ref={virtuosoRef}
+            data={subtitles}
+            className={`h-full ${styles.scrollbar}`}
+            rangeChanged={handleRangeChanged}
+            itemContent={(index, sub) => (
+              <div
+                key={sub.id}
+                data-id={sub.id}
+                onClick={() => onSubtitleClick(sub.startTime)}
+                className={`mx-4 my-1.5 p-3 rounded-xl cursor-pointer transition-all duration-200 border group/item ${currentSubtitle?.id === sub.id
+                  ? styles.itemActive
+                  : styles.itemInactive
+                  }`}
+              >
+                {/* Timestamp */}
+                <div className="flex justify-between items-start mb-1.5">
+                  <span
+                    className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${currentSubtitle?.id === sub.id
+                      ? styles.timestampActive
+                      : styles.timestampInactive
+                      }`}
+                  >
+                    {formatTime(sub.startTime)}
+                  </span>
                 </div>
-              )}
 
-              {/* Vietnamese Subtitle */}
-              {mode === 'both' && sub.vi && (
-                <p
-                  className={`text-sm font-medium leading-relaxed ${currentSubtitle?.id === sub.id
-                    ? styles.textViActive
-                    : styles.textViInactive
-                    }`}
-                >
-                  {sub.vi}
-                </p>
-              )}
+                {/* English Subtitle */}
+                {sub.en && (
+                  <div
+                    className={`text-base font-semibold mb-2 leading-relaxed ${currentSubtitle?.id === sub.id
+                      ? styles.textEnActive
+                      : styles.textEnInactive
+                      }`}
+                  >
+                    <InteractiveSubtitle
+                      text={sub.en}
+                      onWordClick={(word) => handleWordClick(word, sub.en, sub.vi)}
+                    />
+                  </div>
+                )}
+
+                {/* Vietnamese Subtitle */}
+                {mode === 'both' && sub.vi && (
+                  <p
+                    className={`text-sm font-medium leading-relaxed ${currentSubtitle?.id === sub.id
+                      ? styles.textViActive
+                      : styles.textViInactive
+                      }`}
+                  >
+                    {sub.vi}
+                  </p>
+                )}
+              </div>
+            )}
+          />
+
+          {/* Floating Back to Current Button */}
+          {showBackButton && currentSubtitle && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <Button
+                onClick={scrollToCurrent}
+                className="h-12 w-12 rounded-full bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+                size="icon"
+                title={scrollDirection === 'up' ? 'Quay về phụ đề hiện tại (bên trên)' : 'Quay về phụ đề hiện tại (bên dưới)'}
+              >
+                {scrollDirection === 'up' ? (
+                  <ChevronUp className="w-6 h-6" />
+                ) : (
+                  <ChevronDown className="w-6 h-6" />
+                )}
+              </Button>
             </div>
-          ))}
+          )}
         </div>
-
-        {/* Floating Back to Current Button */}
-        {showBackButton && currentSubtitle && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <Button
-              onClick={scrollToCurrent}
-              className="h-12 w-12 rounded-full bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-              size="icon"
-              title={scrollDirection === 'up' ? 'Quay về phụ đề hiện tại (bên dưới)' : 'Quay về phụ đề hiện tại (bên trên)'}
-            >
-              {scrollDirection === 'up' ? (
-                <ChevronDown className="w-6 h-6" />
-              ) : (
-                <ChevronUp className="w-6 h-6" />
-              )}
-            </Button>
-          </div>
-        )}
       </div>
 
       <WordDefinitionModal

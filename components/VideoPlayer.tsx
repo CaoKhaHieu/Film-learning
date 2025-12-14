@@ -525,7 +525,7 @@ export function VideoPlayer({
                         setSubtitleMode('both');
                         setShowSubtitleMenu(false);
                       }}
-                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${subtitleMode === 'both'
+                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors cursor-pointer ${subtitleMode === 'both'
                         ? 'bg-yellow-500/20 text-yellow-400'
                         : 'text-white hover:bg-white/10'
                         }`}
@@ -540,7 +540,7 @@ export function VideoPlayer({
                         setSubtitleMode('en');
                         setShowSubtitleMenu(false);
                       }}
-                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${subtitleMode === 'en'
+                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors cursor-pointer ${subtitleMode === 'en'
                         ? 'bg-yellow-500/20 text-yellow-400'
                         : 'text-white hover:bg-white/10'
                         }`}
@@ -555,7 +555,7 @@ export function VideoPlayer({
                         setSubtitleMode('off');
                         setShowSubtitleMenu(false);
                       }}
-                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors ${subtitleMode === 'off'
+                      className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors cursor-pointer ${subtitleMode === 'off'
                         ? 'bg-yellow-500/20 text-yellow-400'
                         : 'text-white hover:bg-white/10'
                         }`}
