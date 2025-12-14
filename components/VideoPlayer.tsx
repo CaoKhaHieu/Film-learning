@@ -391,13 +391,23 @@ export function VideoPlayer({
         </video>
 
         {/* Subtitle Overlay */}
-        <SubtitleOverlay currentSubtitle={currentSubtitle} mode={subtitleMode} />
+        <SubtitleOverlay
+          currentSubtitle={currentSubtitle}
+          mode={subtitleMode}
+          onPauseRequest={() => {
+            if (videoRef.current) {
+              videoRef.current.pause();
+              setIsPlaying(false);
+            }
+          }}
+          movieId={movieId}
+        />
 
         {/* Top Bar */}
         <div className={`absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300 z-20 ${showControls ? "opacity-100" : "opacity-0"}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 rounded-full" onClick={() => router.back()}>
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white rounded-full" onClick={() => router.back()}>
                 <ArrowLeft className="w-6 h-6" />
               </Button>
               <div>
@@ -585,6 +595,13 @@ export function VideoPlayer({
         onSubtitleClick={handleSubtitleClick}
         formatTime={formatTime}
         mode={subtitleMode}
+        movieId={movieId}
+        onPauseRequest={() => {
+          if (videoRef.current) {
+            videoRef.current.pause();
+            setIsPlaying(false);
+          }
+        }}
       />
 
       {/* Report Issue Modal */}

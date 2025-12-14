@@ -1,0 +1,292 @@
+[2025-12-13T10:36:45.763Z] Movie ID 48017: Missing m3u8 link
+[2025-12-13T10:37:04.679Z] Movie ID 885243: Missing m3u8 link
+[2025-12-13T11:45:13.606Z] Movie ID 656150: Missing m3u8 link
+[2025-12-13T11:53:09.061Z] Movie ID 1084199: Unexpected error: Navigating frame was detached
+[2025-12-13T12:23:26.091Z] Movie ID 158997: Missing m3u8 link
+[2025-12-13T12:45:29.314Z] Movie ID 1064307: Missing m3u8 link
+[2025-12-13T12:51:07.165Z] Movie ID 265418: Missing m3u8 link
+[2025-12-13T12:55:29.294Z] Movie ID 81775: Missing m3u8 link
+[2025-12-13T13:05:23.873Z] Movie ID 1549292: Missing m3u8 link
+[2025-12-13T13:28:40.687Z] Movie ID 1549292: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T13:28:54.482Z] Movie ID 927254: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T13:29:09.202Z] Movie ID 270938: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T13:29:22.799Z] Movie ID 41515: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T13:29:32.666Z] Movie ID 1362315: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T13:29:42.209Z] Movie ID 156022: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T13:29:55.802Z] Movie ID 809: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T13:40:17.825Z] Movie ID 9399: Missing subtitle API link
+[2025-12-13T14:20:48.841Z] Movie ID 26675: Missing m3u8 link
+[2025-12-13T14:25:53.727Z] Movie ID 578: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T14:26:04.486Z] Movie ID 238: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T14:26:18.105Z] Movie ID 13971: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T14:26:27.947Z] Movie ID 10195: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T14:26:41.938Z] Movie ID 1101401: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T14:26:56.025Z] Movie ID 10843: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T14:27:05.676Z] Movie ID 1441563: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T14:49:19.598Z] Movie ID 414419: Missing m3u8 link
+[2025-12-13T15:06:31.491Z] Movie ID 1479945: No English subtitle found
+[2025-12-13T15:28:05.195Z] Movie ID 30875: Missing m3u8 link
+[2025-12-13T15:40:51.224Z] Movie ID 330457: No English subtitle found
+[2025-12-13T15:41:10.212Z] Movie ID 5144: Missing m3u8 link
+[2025-12-13T16:05:42.159Z] Movie ID 10431: Missing subtitle API link
+[2025-12-13T16:12:52.356Z] Movie ID 208989: Missing m3u8 link
+[2025-12-13T17:02:32.909Z] Movie ID 551027: Missing m3u8 link
+[2025-12-13T17:36:53.785Z] Movie ID 476781: Missing m3u8 link
+[2025-12-13T17:49:54.492Z] Movie ID 64641: Missing m3u8 link
+[2025-12-13T18:01:49.639Z] Movie ID 623666: Missing m3u8 link
+[2025-12-13T18:07:20.828Z] Movie ID 358403: Missing m3u8 link
+[2025-12-13T18:07:39.765Z] Movie ID 61861: Missing m3u8 link
+[2025-12-13T18:14:47.615Z] Movie ID 40343: Missing m3u8 link
+[2025-12-13T18:22:56.381Z] Movie ID 38: No English subtitle found
+[2025-12-13T18:30:47.616Z] Movie ID 1296504: Missing subtitle API link
+[2025-12-13T18:31:06.255Z] Movie ID 21542: Missing m3u8 link
+[2025-12-13T18:42:35.669Z] Movie ID 14054: Missing m3u8 link
+[2025-12-13T18:46:34.800Z] Movie ID 170885: Missing m3u8 link
+[2025-12-13T18:49:44.035Z] Movie ID 1471345: Missing m3u8 link
+[2025-12-13T19:03:53.107Z] Movie ID 1014843: Missing m3u8 link
+[2025-12-13T19:06:38.431Z] Movie ID 666154: Missing m3u8 link
+[2025-12-13T19:13:22.593Z] Movie ID 40618: Missing m3u8 link
+[2025-12-13T19:18:41.992Z] Movie ID 755080: Missing subtitle API link
+[2025-12-13T19:32:25.713Z] Movie ID 1135727: Missing m3u8 link
+[2025-12-13T19:34:27.353Z] Movie ID 488968: Missing m3u8 link
+[2025-12-13T19:51:15.676Z] Movie ID 120386: Missing m3u8 link
+[2025-12-13T20:11:06.383Z] Movie ID 392818: Missing subtitle API link
+[2025-12-13T20:36:33.567Z] Movie ID 70690: Missing m3u8 link
+[2025-12-13T20:56:44.071Z] Movie ID 561: No English subtitle found
+[2025-12-13T21:18:50.863Z] Movie ID 293660: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T21:19:02.649Z] Movie ID 61979: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T21:19:21.623Z] Movie ID 512198: Missing m3u8 link
+[2025-12-13T21:19:31.445Z] Movie ID 1511789: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T21:19:41.212Z] Movie ID 1119878: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T21:19:55.173Z] Movie ID 11536: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T21:20:06.933Z] Movie ID 1307078: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-13T21:21:54.136Z] Movie ID 256967: Missing m3u8 link
+[2025-12-13T21:24:58.736Z] Movie ID 151586: Missing subtitle API link
+[2025-12-13T21:27:35.555Z] Movie ID 100306: Missing m3u8 link
+[2025-12-13T21:31:28.608Z] Movie ID 498249: Missing subtitle API link
+[2025-12-13T21:38:24.461Z] Movie ID 376228: Unexpected error: Request failed with status code 400
+[2025-12-13T21:38:43.228Z] Movie ID 132363: Missing subtitle API link
+[2025-12-13T21:54:34.153Z] Movie ID 455240: Unexpected error: Request failed with status code 400
+[2025-12-13T22:22:29.759Z] Movie ID 1002158: Missing m3u8 link
+[2025-12-13T22:30:06.707Z] Movie ID 69056: Missing m3u8 link
+[2025-12-13T22:43:11.005Z] Movie ID 940551: Missing subtitle API link
+[2025-12-13T22:50:34.068Z] Movie ID 528644: Unexpected error: Request failed with status code 400
+[2025-12-13T23:00:24.271Z] Movie ID 1293286: Missing m3u8 link
+[2025-12-13T23:41:22.851Z] Movie ID 153104: Missing subtitle API link
+[2025-12-13T23:58:16.628Z] Movie ID 879689: Missing subtitle API link
+[2025-12-14T00:04:24.940Z] Movie ID 514577: Missing m3u8 link
+[2025-12-14T00:16:06.592Z] Movie ID 949903: Unexpected error: Request failed with status code 400
+[2025-12-14T00:31:14.723Z] Movie ID 15378: Unexpected error: Request failed with status code 400
+[2025-12-14T00:42:57.723Z] Movie ID 978090: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T00:43:11.705Z] Movie ID 1245347: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T00:43:25.682Z] Movie ID 14022: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T00:43:34.461Z] Movie ID 1242419: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T00:43:43.478Z] Movie ID 9502: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T00:43:53.418Z] Movie ID 580489: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T00:44:03.460Z] Movie ID 532639: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T00:44:22.355Z] Movie ID 369202: Missing subtitle API link
+[2025-12-14T00:46:13.905Z] Movie ID 22373: Missing subtitle API link
+[2025-12-14T00:46:30.397Z] Movie ID 781732: Unexpected error: Request failed with status code 400
+[2025-12-14T00:51:55.567Z] Movie ID 77338: Unexpected error: Request failed with status code 400
+[2025-12-14T00:52:14.580Z] Movie ID 167364: Missing m3u8 link
+[2025-12-14T00:52:34.184Z] Movie ID 524008: Unexpected error: Request failed with status code 400
+[2025-12-14T00:52:53.147Z] Movie ID 558655: Missing m3u8 link
+[2025-12-14T00:56:22.831Z] Movie ID 79694: Unexpected error: Request failed with status code 400
+[2025-12-14T01:00:28.933Z] Movie ID 4171: Missing m3u8 link
+[2025-12-14T01:00:47.964Z] Movie ID 145963: Missing m3u8 link
+[2025-12-14T01:07:22.522Z] Movie ID 1331349: Unexpected error: Request failed with status code 400
+[2025-12-14T01:07:41.426Z] Movie ID 43123: Missing m3u8 link
+[2025-12-14T01:18:57.547Z] Movie ID 454527: Unexpected error: Request failed with status code 400
+[2025-12-14T01:22:36.414Z] Movie ID 62029: Unexpected error: Request failed with status code 400
+[2025-12-14T01:22:55.319Z] Movie ID 1291040: Missing subtitle API link
+[2025-12-14T01:23:12.809Z] Movie ID 44214: Unexpected error: Request failed with status code 400
+[2025-12-14T01:33:14.512Z] Movie ID 254: No English subtitle found
+[2025-12-14T01:36:08.314Z] Movie ID 63176: Missing m3u8 link
+[2025-12-14T01:36:34.622Z] Movie ID 15794: Unexpected error: Request failed with status code 400
+[2025-12-14T01:40:06.465Z] Movie ID 70196: Missing m3u8 link
+[2025-12-14T01:50:07.200Z] Movie ID 62752: Missing subtitle API link
+[2025-12-14T01:50:27.192Z] Movie ID 169: Unexpected error: Request failed with status code 400
+[2025-12-14T01:51:56.312Z] Movie ID 9714: Unexpected error: Request failed with status code 400
+[2025-12-14T01:57:54.502Z] Movie ID 588: Unexpected error: Request failed with status code 400
+[2025-12-14T02:00:11.450Z] Movie ID 76: Unexpected error: Request failed with status code 400
+[2025-12-14T02:03:46.085Z] Movie ID 56168: Unexpected error: Request failed with status code 400
+[2025-12-14T02:06:22.832Z] Movie ID 335984: Unexpected error: Upload failed for 94c332fd-e4c3-49dc-9b5d-7a6618f77dfe/en.srt: Unexpected token '<', "<html>
+<h"... is not valid JSON
+[2025-12-14T02:15:30.844Z] Movie ID 9807: Missing subtitle API link
+[2025-12-14T02:19:44.634Z] Movie ID 637415: Missing subtitle API link
+[2025-12-14T02:27:02.590Z] Movie ID 553: Unexpected error: Request failed with status code 400
+[2025-12-14T02:33:06.621Z] Movie ID 757725: Unexpected error: Request failed with status code 400
+[2025-12-14T02:39:02.311Z] Movie ID 476926: Unexpected error: Request failed with status code 400
+[2025-12-14T02:42:45.780Z] Movie ID 272878: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T02:42:55.334Z] Movie ID 698687: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T02:43:08.986Z] Movie ID 616446: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T02:43:17.885Z] Movie ID 426063: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T02:43:29.746Z] Movie ID 1064028: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T02:43:39.314Z] Movie ID 986056: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T02:43:49.208Z] Movie ID 605722: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T02:43:59.120Z] Movie ID 335977: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T02:52:51.112Z] Movie ID 24124: Unexpected error: Request failed with status code 400
+[2025-12-14T02:53:39.102Z] Movie ID 106867: Unexpected error: Request failed with status code 400
+[2025-12-14T02:55:52.547Z] Movie ID 15942: Missing m3u8 link
+[2025-12-14T02:57:49.249Z] Movie ID 14349: Missing m3u8 link
+[2025-12-14T02:58:20.199Z] Movie ID 985939: Unexpected error: Request failed with status code 400
+[2025-12-14T03:00:46.376Z] Movie ID 26596: Unexpected error: Request failed with status code 400
+[2025-12-14T03:01:27.354Z] Movie ID 509: Unexpected error: Request failed with status code 400
+[2025-12-14T03:01:46.303Z] Movie ID 1127: Missing m3u8 link
+[2025-12-14T03:06:22.551Z] Movie ID 127139: Missing m3u8 link
+[2025-12-14T03:17:54.413Z] Movie ID 31616: Missing m3u8 link
+[2025-12-14T03:18:13.311Z] Movie ID 20441: Missing subtitle API link
+[2025-12-14T03:21:22.873Z] Movie ID 763215: Unexpected error: Request failed with status code 400
+[2025-12-14T03:40:13.682Z] Movie ID 108083: Missing m3u8 link
+[2025-12-14T03:40:32.596Z] Movie ID 676839: Missing m3u8 link
+[2025-12-14T03:41:15.152Z] Movie ID 5174: Unexpected error: Request failed with status code 400
+[2025-12-14T03:41:50.412Z] Movie ID 25527: Unexpected error: Request failed with status code 400
+[2025-12-14T04:39:49.818Z] Movie ID 1232449: Unexpected error: Request failed with status code 400
+[2025-12-14T04:43:53.671Z] Movie ID 401732: Unexpected error: Request failed with status code 400
+[2025-12-14T04:44:15.196Z] Movie ID 764523: Unexpected error: Request failed with status code 400
+[2025-12-14T04:44:34.177Z] Movie ID 1171821: Missing m3u8 link
+[2025-12-14T04:44:48.821Z] Movie ID 1283707: Unexpected error: Request failed with status code 400
+[2025-12-14T04:45:07.474Z] Movie ID 319998: Unexpected error: Request failed with status code 400
+[2025-12-14T04:49:37.166Z] Movie ID 997265: Missing m3u8 link
+[2025-12-14T04:52:55.224Z] Movie ID 34851: Unexpected error: Request failed with status code 400
+[2025-12-14T04:53:09.694Z] Movie ID 999890: Unexpected error: Request failed with status code 400
+[2025-12-14T04:53:50.125Z] Movie ID 4348: Unexpected error: Request failed with status code 400
+[2025-12-14T04:59:38.595Z] Movie ID 162: Unexpected error: Request failed with status code 400
+[2025-12-14T05:01:35.306Z] Movie ID 823219: Unexpected error: Request failed with status code 400
+[2025-12-14T05:02:19.857Z] Movie ID 1118046: Unexpected error: Request failed with status code 400
+[2025-12-14T05:03:08.418Z] Movie ID 494950: Unexpected error: Request failed with status code 400
+[2025-12-14T05:03:28.534Z] Movie ID 84185: Missing subtitle API link
+[2025-12-14T05:05:03.240Z] Movie ID 50647: Unexpected error: Request failed with status code 400
+[2025-12-14T05:05:48.116Z] Movie ID 996154: Unexpected error: Request failed with status code 400
+[2025-12-14T05:06:07.113Z] Movie ID 82525: Unexpected error: Request failed with status code 400
+[2025-12-14T05:08:32.560Z] Movie ID 21380: Missing subtitle API link
+[2025-12-14T05:08:43.121Z] Movie ID 507086: Unexpected error: Request failed with status code 400
+[2025-12-14T05:09:02.108Z] Movie ID 87852: Unexpected error: Request failed with status code 400
+[2025-12-14T05:11:40.282Z] Movie ID 868759: Unexpected error: Request failed with status code 400
+[2025-12-14T05:14:20.488Z] Movie ID 630004: Unexpected error: Request failed with status code 400
+[2025-12-14T05:20:37.510Z] Movie ID 629542: Unexpected error: Request failed with status code 400
+[2025-12-14T05:24:45.571Z] Movie ID 42782: Missing subtitle API link
+[2025-12-14T05:27:04.858Z] Movie ID 16577: Unexpected error: Request failed with status code 400
+[2025-12-14T05:27:44.797Z] Movie ID 50546: Unexpected error: Request failed with status code 400
+[2025-12-14T05:28:30.742Z] Movie ID 6537: Unexpected error: Request failed with status code 400
+[2025-12-14T05:28:43.219Z] Movie ID 10020: Unexpected error: Request failed with status code 400
+[2025-12-14T05:31:15.769Z] Movie ID 286256: Missing m3u8 link
+[2025-12-14T05:31:26.624Z] Movie ID 1149167: Unexpected error: Request failed with status code 400
+[2025-12-14T05:31:41.074Z] Movie ID 1154215: Unexpected error: Request failed with status code 400
+[2025-12-14T05:32:25.718Z] Movie ID 676156: Unexpected error: Request failed with status code 400
+[2025-12-14T05:35:33.369Z] Movie ID 38055: Unexpected error: Request failed with status code 400
+[2025-12-14T05:37:59.219Z] Movie ID 63961: Unexpected error: Request failed with status code 400
+[2025-12-14T05:40:12.948Z] Movie ID 1142101: Unexpected error: Request failed with status code 400
+[2025-12-14T05:40:31.913Z] Movie ID 1249289: Missing subtitle API link
+[2025-12-14T05:42:17.143Z] Movie ID 184578: Missing m3u8 link
+[2025-12-14T05:45:09.714Z] Movie ID 760873: Unexpected error: Request failed with status code 400
+[2025-12-14T05:47:05.397Z] Movie ID 817959: Missing m3u8 link
+[2025-12-14T05:49:04.910Z] Movie ID 9753: Missing m3u8 link
+[2025-12-14T05:49:23.862Z] Movie ID 643205: Missing subtitle API link
+[2025-12-14T05:58:04.665Z] Movie ID 1106289: Unexpected error: Request failed with status code 400
+[2025-12-14T05:58:18.950Z] Movie ID 13179: Unexpected error: Request failed with status code 400
+[2025-12-14T05:59:00.129Z] Movie ID 348893: Unexpected error: Request failed with status code 400
+[2025-12-14T06:02:07.902Z] Movie ID 1163258: Missing subtitle API link
+[2025-12-14T06:02:24.613Z] Movie ID 2019: Unexpected error: Request failed with status code 400
+[2025-12-14T06:10:21.243Z] Movie ID 31598: Unexpected error: Request failed with status code 400
+[2025-12-14T06:17:15.321Z] Movie ID 115290: Unexpected error: Request failed with status code 400
+[2025-12-14T06:22:15.599Z] Movie ID 9297: Unexpected error: Request failed with status code 400
+[2025-12-14T06:22:25.885Z] Movie ID 7445: Unexpected error: Request failed with status code 400
+[2025-12-14T06:22:44.872Z] Movie ID 995546: Missing m3u8 link
+[2025-12-14T06:26:54.235Z] Movie ID 585759: Unexpected error: Request failed with status code 400
+[2025-12-14T06:29:45.632Z] Movie ID 1337411: Unexpected error: Request failed with status code 400
+[2025-12-14T06:32:20.701Z] Movie ID 9023: Unexpected error: Request failed with status code 400
+[2025-12-14T06:35:17.458Z] Movie ID 84119: Missing m3u8 link
+[2025-12-14T06:35:30.103Z] Movie ID 1367575: Unexpected error: Request failed with status code 400
+[2025-12-14T06:35:41.107Z] Movie ID 73723: Unexpected error: Request failed with status code 400
+[2025-12-14T06:38:49.908Z] Movie ID 52998: Unexpected error: Request failed with status code 400
+[2025-12-14T06:42:42.528Z] Movie ID 84397: Missing m3u8 link
+[2025-12-14T06:44:55.942Z] Movie ID 8316: Unexpected error: Request failed with status code 400
+[2025-12-14T06:47:12.433Z] Movie ID 1096563: Unexpected error: Request failed with status code 400
+[2025-12-14T06:51:24.407Z] Movie ID 1366: Unexpected error: Request failed with status code 400
+[2025-12-14T07:03:22.190Z] Movie ID 297762: Unexpected error: Request failed with status code 400
+[2025-12-14T07:05:24.562Z] Movie ID 12536: Unexpected error: Request failed with status code 400
+[2025-12-14T07:05:43.389Z] Movie ID 1339772: Missing m3u8 link
+[2025-12-14T07:05:54.168Z] Movie ID 150689: Unexpected error: Request failed with status code 400
+[2025-12-14T07:09:24.131Z] Movie ID 483906: Unexpected error: Request failed with status code 400
+[2025-12-14T07:13:56.523Z] Movie ID 460059: Missing m3u8 link
+[2025-12-14T07:14:15.577Z] Movie ID 2322: Missing subtitle API link
+[2025-12-14T07:14:28.080Z] Movie ID 606856: Unexpected error: Request failed with status code 400
+[2025-12-14T07:18:20.400Z] Movie ID 250546: Unexpected error: Request failed with status code 400
+[2025-12-14T07:19:00.853Z] Movie ID 1280450: Unexpected error: Request failed with status code 400
+[2025-12-14T07:19:19.889Z] Movie ID 794960: Missing m3u8 link
+[2025-12-14T07:21:43.352Z] Movie ID 62: Unexpected error: Request failed with status code 400
+[2025-12-14T07:26:30.318Z] Movie ID 408866: Unexpected error: Request failed with status code 400
+[2025-12-14T07:30:43.122Z] Movie ID 8681: Unexpected error: Request failed with status code 400
+[2025-12-14T07:33:00.155Z] Movie ID 3061: Missing m3u8 link
+[2025-12-14T07:33:15.950Z] Movie ID 354110: Unexpected error: Request failed with status code 400
+[2025-12-14T07:33:34.738Z] Movie ID 27374: Missing m3u8 link
+[2025-12-14T07:41:08.978Z] Movie ID 505642: Unexpected error: Request failed with status code 400
+[2025-12-14T07:41:35.724Z] Movie ID 592983: Unexpected error: Request failed with status code 400
+[2025-12-14T07:41:55.178Z] Movie ID 8047: Missing m3u8 link
+[2025-12-14T07:44:52.010Z] Movie ID 1211442: Missing m3u8 link
+[2025-12-14T07:45:10.849Z] Movie ID 1124: Missing m3u8 link
+[2025-12-14T07:51:23.543Z] Movie ID 1005331: Unexpected error: Request failed with status code 400
+[2025-12-14T07:55:08.018Z] Movie ID 73686: Unexpected error: Request failed with status code 400
+[2025-12-14T08:00:30.729Z] Movie ID 587792: Unexpected error: Request failed with status code 400
+[2025-12-14T08:04:27.924Z] Movie ID 582908: Unexpected error: Request failed with status code 400
+[2025-12-14T08:08:11.362Z] Movie ID 1013126: Unexpected error: Request failed with status code 400
+[2025-12-14T08:08:41.074Z] Movie ID 976573: Unexpected error: Request failed with status code 400
+[2025-12-14T08:08:59.691Z] Movie ID 44918: Missing m3u8 link
+[2025-12-14T08:09:40.984Z] Movie ID 276907: Unexpected error: Request failed with status code 400
+[2025-12-14T08:09:51.562Z] Movie ID 136799: Unexpected error: Request failed with status code 400
+[2025-12-14T08:10:07.257Z] Movie ID 11688: Unexpected error: Request failed with status code 400
+[2025-12-14T08:10:28.859Z] Movie ID 62177: Unexpected error: Request failed with status code 400
+[2025-12-14T08:13:33.070Z] Movie ID 573171: Missing m3u8 link
+[2025-12-14T08:18:15.534Z] Movie ID 11635: Unexpected error: Request failed with status code 400
+[2025-12-14T08:18:30.549Z] Movie ID 420707: Unexpected error: Request failed with status code 400
+[2025-12-14T08:19:05.083Z] Movie ID 27123: Unexpected error: Request failed with status code 400
+[2025-12-14T08:19:39.503Z] Movie ID 931349: Unexpected error: Request failed with status code 400
+[2025-12-14T08:19:51.920Z] Movie ID 675353: Unexpected error: Request failed with status code 400
+[2025-12-14T08:20:34.576Z] Movie ID 38700: Unexpected error: Request failed with status code 400
+[2025-12-14T08:21:19.384Z] Movie ID 597900: Unexpected error: Request failed with status code 400
+[2025-12-14T08:21:53.754Z] Movie ID 435615: Unexpected error: Request failed with status code 400
+[2025-12-14T08:22:09.373Z] Movie ID 970450: Unexpected error: Request failed with status code 400
+[2025-12-14T08:22:40.719Z] Movie ID 861451: Unexpected error: Request failed with status code 400
+[2025-12-14T08:22:52.690Z] Movie ID 487616: Unexpected error: Request failed with status code 400
+[2025-12-14T08:28:20.133Z] Movie ID 947478: Unexpected error: Request failed with status code 400
+[2025-12-14T08:32:18.227Z] Movie ID 660717: Missing m3u8 link
+[2025-12-14T08:32:32.755Z] Movie ID 490017: Unexpected error: Request failed with status code 400
+[2025-12-14T08:32:47.040Z] Movie ID 70345: Unexpected error: Request failed with status code 400
+[2025-12-14T08:33:05.495Z] Movie ID 110143: Unexpected error: Request failed with status code 400
+[2025-12-14T08:33:46.497Z] Movie ID 152760: Unexpected error: Request failed with status code 400
+[2025-12-14T08:33:58.154Z] Movie ID 257344: Unexpected error: Request failed with status code 400
+[2025-12-14T08:39:39.925Z] Movie ID 339877: Unexpected error: Request failed with status code 400
+[2025-12-14T08:39:54.474Z] Movie ID 549319: Unexpected error: Request failed with status code 400
+[2025-12-14T08:40:09.127Z] Movie ID 98333: Unexpected error: Request failed with status code 400
+[2025-12-14T08:40:23.571Z] Movie ID 1352755: Unexpected error: Request failed with status code 400
+[2025-12-14T08:40:36.328Z] Movie ID 22832: Unexpected error: Request failed with status code 400
+[2025-12-14T08:40:47.006Z] Movie ID 1064486: Unexpected error: Request failed with status code 400
+[2025-12-14T08:41:00.255Z] Movie ID 1028248: Unexpected error: Request failed with status code 502
+[2025-12-14T08:41:19.203Z] Movie ID 114104: Missing m3u8 link
+[2025-12-14T08:41:29.815Z] Movie ID 6479: Unexpected error: Request failed with status code 400
+[2025-12-14T08:41:39.427Z] Movie ID 447273: Unexpected error: Request failed with status code 400
+[2025-12-14T08:42:01.032Z] Movie ID 49292: Unexpected error: Request failed with status code 502
+[2025-12-14T08:49:15.419Z] Movie ID 1167351: Unexpected error: Request failed with status code 502
+[2025-12-14T09:01:15.216Z] Movie ID 68392: Missing m3u8 link
+[2025-12-14T09:06:54.415Z] Movie ID 146955: Missing m3u8 link
+[2025-12-14T09:13:17.262Z] Movie ID 39517: Missing m3u8 link
+[2025-12-14T09:23:15.983Z] Movie ID 197: No English subtitle found
+[2025-12-14T09:27:40.482Z] Movie ID 1103857: Missing subtitle API link
+[2025-12-14T09:51:39.525Z] Movie ID 1337395: Missing m3u8 link
+[2025-12-14T09:53:08.968Z] Movie ID 290618: Missing m3u8 link
+[2025-12-14T09:56:30.399Z] Movie ID 1241983: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T09:56:40.296Z] Movie ID 1422096: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T09:56:51.199Z] Movie ID 210577: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T09:57:10.171Z] Movie ID 56040: Missing m3u8 link
+[2025-12-14T09:57:24.139Z] Movie ID 18079: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T09:57:35.103Z] Movie ID 225886: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T09:57:45.933Z] Movie ID 324544: Unexpected error: getaddrinfo ENOTFOUND sub.wyzie.ru
+[2025-12-14T10:43:50.169Z] Movie ID 193385: Missing m3u8 link
+[2025-12-14T10:52:42.433Z] Movie ID 518749: Missing m3u8 link
+[2025-12-14T10:53:01.232Z] Movie ID 83658: Missing m3u8 link
+[2025-12-14T10:53:20.147Z] Movie ID 554585: Missing m3u8 link
+[2025-12-14T10:57:36.643Z] Movie ID 98: No English subtitle found
+[2025-12-14T10:59:58.643Z] Movie ID 1207417: Missing m3u8 link
+[2025-12-14T11:05:19.428Z] Movie ID 1325678: Unexpected error: Upload failed for ff342c83-a086-42b7-86e3-a4df9782f503/en.srt: fetch failed
+[2025-12-14T11:05:30.117Z] Movie ID 447365: Movie not found in DB: TypeError: fetch failed

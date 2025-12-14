@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { X, ChevronDown, ChevronUp, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BilingualSubtitle } from "@/lib/subtitle-parser";
+import { InteractiveSubtitle } from "./InteractiveSubtitle";
+import { WordDefinitionModal } from "./WordDefinitionModal";
 
 interface SubtitleSidebarProps {
   subtitles: BilingualSubtitle[];
@@ -11,6 +13,8 @@ interface SubtitleSidebarProps {
   onSubtitleClick: (startTime: number) => void;
   formatTime: (time: number) => string;
   mode: 'both' | 'en' | 'off';
+  movieId?: string;
+  onPauseRequest?: () => void;
 }
 
 type Theme = 'light' | 'dark';
@@ -22,7 +26,9 @@ export function SubtitleSidebar({
   onClose,
   onSubtitleClick,
   formatTime,
-  mode
+  mode,
+  movieId,
+  onPauseRequest
 }: SubtitleSidebarProps) {
   const subtitleListRef = useRef<HTMLDivElement>(null);
   const [showBackButton, setShowBackButton] = useState(false);
@@ -32,6 +38,22 @@ export function SubtitleSidebar({
   const autoScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastScrollTop = useRef(0);
   const isAutoScrolling = useRef(false);
+
+  // Modal state
+  const [selectedWord, setSelectedWord] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContext, setModalContext] = useState<string>("");
+  const [modalContextVi, setModalContextVi] = useState<string>("");
+
+  const handleWordClick = (word: string, context: string, contextVi?: string) => {
+    if (onPauseRequest) {
+      onPauseRequest();
+    }
+    setSelectedWord(word);
+    setModalContext(context);
+    setModalContextVi(contextVi || "");
+    setIsModalOpen(true);
+  };
 
   // Load theme from localStorage on mount
   useEffect(() => {
@@ -231,113 +253,127 @@ export function SubtitleSidebar({
   }, [isOpen]);
 
   return (
-    <div
-      className={`${styles.container} border-l transition-all duration-300 ease-in-out flex flex-col relative ${isOpen ? "w-80 translate-x-0" : "w-0 translate-x-full opacity-0"
-        }`}
-    >
-      {/* Header */}
-      <div className={`p-4 border-b ${styles.header} flex items-center justify-between z-10`}>
-        <h3 className={`${styles.headerText} font-bold text-sm uppercase tracking-wider`}>
-          {mode === 'both' ? 'Phụ đề song ngữ' : mode === 'en' ? 'Phụ đề tiếng Anh' : 'Phụ đề (Tắt)'}
-        </h3>
-        <div className="flex items-center gap-2">
-          {/* Theme Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`h-8 w-8 ${styles.themeButton} rounded-full`}
-            onClick={toggleTheme}
-            title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4" />
-            ) : (
-              <Moon className="w-4 h-4" />
-            )}
-          </Button>
-          {/* Close Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`h-8 w-8 ${styles.closeButton} rounded-full`}
-            onClick={onClose}
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Subtitle List */}
+    <>
       <div
-        ref={subtitleListRef}
-        className={`flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin ${styles.scrollbar}`}
+        className={`${styles.container} border-l transition-all duration-300 ease-in-out flex flex-col relative ${isOpen ? "w-80 translate-x-0" : "w-0 translate-x-full opacity-0"
+          }`}
       >
-        {subtitles.map((sub) => (
-          <div
-            key={sub.id}
-            data-id={sub.id}
-            onClick={() => onSubtitleClick(sub.startTime)}
-            className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border group/item ${currentSubtitle?.id === sub.id
-              ? styles.itemActive
-              : styles.itemInactive
-              }`}
-          >
-            {/* Timestamp */}
-            <div className="flex justify-between items-start mb-1.5">
-              <span
-                className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${currentSubtitle?.id === sub.id
-                  ? styles.timestampActive
-                  : styles.timestampInactive
-                  }`}
-              >
-                {formatTime(sub.startTime)}
-              </span>
-            </div>
-
-            {/* English Subtitle */}
-            {sub.en && (
-              <p
-                className={`text-base font-semibold mb-2 leading-relaxed ${currentSubtitle?.id === sub.id
-                  ? styles.textEnActive
-                  : styles.textEnInactive
-                  }`}
-              >
-                {sub.en}
-              </p>
-            )}
-
-            {/* Vietnamese Subtitle */}
-            {mode === 'both' && sub.vi && (
-              <p
-                className={`text-sm font-medium leading-relaxed ${currentSubtitle?.id === sub.id
-                  ? styles.textViActive
-                  : styles.textViInactive
-                  }`}
-              >
-                {sub.vi}
-              </p>
-            )}
+        {/* Header */}
+        <div className={`p-4 border-b ${styles.header} flex items-center justify-between z-10`}>
+          <h3 className={`${styles.headerText} font-bold text-sm uppercase tracking-wider`}>
+            {mode === 'both' ? 'Phụ đề song ngữ' : mode === 'en' ? 'Phụ đề tiếng Anh' : 'Phụ đề (Tắt)'}
+          </h3>
+          <div className="flex items-center gap-2">
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 ${styles.themeButton} rounded-full`}
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </Button>
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 ${styles.closeButton} rounded-full`}
+              onClick={onClose}
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </div>
-        ))}
+        </div>
+
+        {/* Subtitle List */}
+        <div
+          ref={subtitleListRef}
+          className={`flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin ${styles.scrollbar}`}
+        >
+          {subtitles.map((sub) => (
+            <div
+              key={sub.id}
+              data-id={sub.id}
+              onClick={() => onSubtitleClick(sub.startTime)}
+              className={`p-3 rounded-xl cursor-pointer transition-all duration-200 border group/item ${currentSubtitle?.id === sub.id
+                ? styles.itemActive
+                : styles.itemInactive
+                }`}
+            >
+              {/* Timestamp */}
+              <div className="flex justify-between items-start mb-1.5">
+                <span
+                  className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${currentSubtitle?.id === sub.id
+                    ? styles.timestampActive
+                    : styles.timestampInactive
+                    }`}
+                >
+                  {formatTime(sub.startTime)}
+                </span>
+              </div>
+
+              {/* English Subtitle */}
+              {sub.en && (
+                <div
+                  className={`text-base font-semibold mb-2 leading-relaxed ${currentSubtitle?.id === sub.id
+                    ? styles.textEnActive
+                    : styles.textEnInactive
+                    }`}
+                >
+                  <InteractiveSubtitle
+                    text={sub.en}
+                    onWordClick={(word) => handleWordClick(word, sub.en, sub.vi)}
+                  />
+                </div>
+              )}
+
+              {/* Vietnamese Subtitle */}
+              {mode === 'both' && sub.vi && (
+                <p
+                  className={`text-sm font-medium leading-relaxed ${currentSubtitle?.id === sub.id
+                    ? styles.textViActive
+                    : styles.textViInactive
+                    }`}
+                >
+                  {sub.vi}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Floating Back to Current Button */}
+        {showBackButton && currentSubtitle && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <Button
+              onClick={scrollToCurrent}
+              className="h-12 w-12 rounded-full bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+              size="icon"
+              title={scrollDirection === 'up' ? 'Quay về phụ đề hiện tại (bên dưới)' : 'Quay về phụ đề hiện tại (bên trên)'}
+            >
+              {scrollDirection === 'up' ? (
+                <ChevronDown className="w-6 h-6" />
+              ) : (
+                <ChevronUp className="w-6 h-6" />
+              )}
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Floating Back to Current Button */}
-      {showBackButton && currentSubtitle && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <Button
-            onClick={scrollToCurrent}
-            className="h-12 w-12 rounded-full bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-            size="icon"
-            title={scrollDirection === 'up' ? 'Quay về phụ đề hiện tại (bên dưới)' : 'Quay về phụ đề hiện tại (bên trên)'}
-          >
-            {scrollDirection === 'up' ? (
-              <ChevronDown className="w-6 h-6" />
-            ) : (
-              <ChevronUp className="w-6 h-6" />
-            )}
-          </Button>
-        </div>
-      )}
-    </div>
+      <WordDefinitionModal
+        word={selectedWord}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        movieId={movieId}
+        contextSentence={modalContext}
+        contextSentenceVi={modalContextVi}
+      />
+    </>
   );
 }

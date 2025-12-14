@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search, User, LogOut, Crown } from "lucide-react";
+import { Search, User, LogOut, Crown, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase";
 import { useEffect, useState } from "react";
@@ -152,7 +152,7 @@ export function Navbar() {
             )}
 
             {/* User Menu */}
-            <div className="relative user-menu-container">
+            <div className="relative user-menu-container cursor-pointer">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center overflow-hidden border-2 border-gray-500 hover:border-yellow-500 transition-colors relative"
@@ -162,7 +162,7 @@ export function Navbar() {
                     <img
                       src={user.user_metadata.avatar_url}
                       alt={user.user_metadata.full_name || user.email}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover cursor-pointer"
                     />
                     {isVIP && (
                       <div className="absolute -bottom-0.5 -right-0.5 bg-yellow-500 rounded-full p-0.5">
@@ -202,7 +202,7 @@ export function Navbar() {
                           setShowUserMenu(false);
                           router.push("/upgrade");
                         }}
-                        className="w-full px-4 py-2 text-left text-sm text-yellow-500 hover:bg-zinc-800 flex items-center gap-2"
+                        className="w-full px-4 py-2 text-left text-sm text-yellow-500 hover:bg-zinc-800 flex items-center gap-2 cursor-pointer"
                       >
                         <Crown className="h-4 w-4" />
                         Nâng cấp VIP
@@ -210,8 +210,19 @@ export function Navbar() {
                     )}
 
                     <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        router.push("/vocabulary");
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-white hover:bg-zinc-800 flex items-center gap-2 cursor-pointer"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Sổ tay từ vựng
+                    </button>
+
+                    <button
                       onClick={handleLogout}
-                      className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-zinc-800 flex items-center gap-2"
+                      className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-zinc-800 flex items-center gap-2 cursor-pointer"
                     >
                       <LogOut className="h-4 w-4" />
                       Đăng xuất
@@ -223,7 +234,7 @@ export function Navbar() {
           </>
         )}
       </div>
-    </nav>
+    </nav >
   );
 }
 
