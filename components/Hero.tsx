@@ -14,14 +14,12 @@ export async function Hero() {
   if (error) {
     console.error('Error fetching movies:', error);
   }
-  console.log('Fetched movies count:', movies?.length || 0);
 
   // Select a random movie from the fetched movies
   let randomMovie: Movie | null = null;
   if (movies && movies.length > 0) {
     const randomIndex = Math.floor(Math.random() * movies.length);
     randomMovie = movies[randomIndex];
-    console.log('Selected random movie:', randomMovie?.title);
   }
 
 

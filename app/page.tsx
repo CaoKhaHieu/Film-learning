@@ -9,7 +9,6 @@ import { getHomepageMovies } from '@/service/movie';
 export default async function Home() {
   // Get all homepage data from service
   const { beginnerMovies, intermediateMovies, advancedMovies, topMovies } = await getHomepageMovies();
-  console.log(beginnerMovies);
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">

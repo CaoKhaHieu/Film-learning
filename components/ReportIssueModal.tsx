@@ -49,7 +49,6 @@ export function ReportIssueModal({ isOpen, onClose, movieId, movieTitle }: Repor
         throw new Error(result.error || 'Failed to submit report');
       }
 
-      console.log("Report submitted successfully:", result.reportId);
       setIsSubmitted(true);
 
       // Auto close after 2 seconds
@@ -128,8 +127,8 @@ export function ReportIssueModal({ isOpen, onClose, movieId, movieTitle }: Repor
                         type="button"
                         onClick={() => setSelectedIssue(issue.value)}
                         className={`relative p-4 rounded-xl border-2 transition-all text-left ${selectedIssue === issue.value
-                            ? "bg-yellow-50 border-yellow-400 shadow-md"
-                            : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+                          ? "bg-yellow-50 border-yellow-400 shadow-md"
+                          : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                           }`}
                       >
                         <div className="flex flex-col gap-2">
