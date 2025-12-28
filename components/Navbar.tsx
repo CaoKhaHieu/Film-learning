@@ -6,13 +6,17 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PricingModal } from "@/components/PricingModal";
+import { toast } from "sonner";
 
 export function Navbar() {
   const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<any>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
   const [isVIP, setIsVIP] = useState(false);
+  const [showPricingModal, setShowPricingModal] = useState(false);
 
   useEffect(() => {
     // Get current user
@@ -74,7 +78,7 @@ export function Navbar() {
 
     if (error) {
       console.error('Error logging in:', error);
-      alert('Lỗi khi đăng nhập. Vui lòng thử lại!');
+      toast.error('Lỗi khi đăng nhập. Vui lòng thử lại!');
     }
   };
 
@@ -145,7 +149,10 @@ export function Navbar() {
         ) : (
           <>
             {!isVIP && (
-              <Button className="bg-yellow-500 text-black hover:bg-yellow-400 font-bold hidden sm:flex">
+              <Button
+                onClick={() => setShowPricingModal(true)}
+                className="bg-yellow-500 text-black hover:bg-yellow-400 font-bold hidden sm:flex"
+              >
                 <Crown className="h-4 w-4 mr-2" />
                 Mua Gói VIP
               </Button>
@@ -200,7 +207,7 @@ export function Navbar() {
                       <button
                         onClick={() => {
                           setShowUserMenu(false);
-                          router.push("/upgrade");
+                          setShowPricingModal(true);
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-yellow-500 hover:bg-zinc-800 flex items-center gap-2 cursor-pointer"
                       >
@@ -234,6 +241,8 @@ export function Navbar() {
           </>
         )}
       </div>
+
+      <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} user={user} />
     </nav >
   );
 }

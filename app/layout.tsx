@@ -3,6 +3,7 @@ import { Inter, Oswald } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import { NavigationProgress } from "@/components/NavigationProgress";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,6 +36,7 @@ export default function RootLayout({
           <NavigationProgress />
         </Suspense>
         {children}
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
