@@ -1,6 +1,7 @@
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { getMovieById, getSubtitlesByMovieId } from "@/service/movie";
 import { notFound } from "next/navigation";
+import { getProxyUrl } from "@/lib/utils";
 
 export default async function WatchPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,7 +18,7 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
   }
 
   // Use default HLS stream if video_url is not available
-  const videoUrl = movie.video_url || "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+  const videoUrl = getProxyUrl(movie.video_url || "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8");
 
   // Find English and Vietnamese subtitle URLs
   const enSubtitle = subtitles.find(sub => sub.language === 'en');

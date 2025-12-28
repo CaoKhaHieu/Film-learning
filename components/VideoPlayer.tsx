@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase";
 import { SubtitleOverlay } from "@/components/SubtitleOverlay";
 import { SubtitleSidebar } from "@/components/SubtitleSidebar";
 import { ReportIssueModal } from "@/components/ReportIssueModal";
+import { getProxyUrl } from "@/lib/utils";
 
 interface VideoPlayerProps {
   src: string;
@@ -167,11 +168,12 @@ export function VideoPlayer({
     if (!video) return;
 
     let hls: Hls | null = null;
-    const isHLS = src.includes(".m3u8");
+    const proxiedSrc = getProxyUrl(src);
+    const isHLS = proxiedSrc.includes(".m3u8");
 
     if (isHLS && Hls.isSupported()) {
       hls = new Hls();
-      hls.loadSource(src);
+      hls.loadSource(proxiedSrc);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         if (autoPlay) {
@@ -179,7 +181,7 @@ export function VideoPlayer({
         }
       });
     } else {
-      video.src = src;
+      video.src = proxiedSrc;
       if (autoPlay) {
         video.play().catch(() => { });
       }
