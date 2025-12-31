@@ -52,6 +52,7 @@ export function getDifficultyLabel(difficultyLevel: string | null): string {
     beginner: 'Cơ Bản',
     intermediate: 'Trung Cấp',
     advanced: 'Nâng Cao',
+    all: 'Tất Cả',
   };
 
   return difficultyLevel

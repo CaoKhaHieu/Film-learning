@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Search, User, LogOut, Crown, BookOpen } from "lucide-react";
+import { Search, User, LogOut, Crown, BookOpen, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { PricingModal } from "@/components/PricingModal";
 import { toast } from "sonner";
 
@@ -82,6 +82,8 @@ export function Navbar() {
     }
   };
 
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -97,12 +99,21 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const navBackground = isScrolled || !isHomePage
+    ? "bg-white/90 backdrop-blur-md shadow-sm py-2"
+    : "bg-transparent";
+
+  const textColor = isScrolled || !isHomePage
+    ? "text-slate-600"
+    : "text-white/90";
+
+  const iconColor = isScrolled || !isHomePage
+    ? "text-slate-700 hover:bg-slate-100"
+    : "text-white/90 hover:bg-white/10";
+
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 md:px-8 transition-all duration-300 ${isScrolled
-        ? "bg-white/90 backdrop-blur-md shadow-sm py-2"
-        : "bg-transparent"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 md:px-8 transition-all duration-300 ${navBackground}`}
     >
       <div className="flex items-center gap-8">
         <Link href="/" className="flex items-center gap-2 group">
@@ -115,11 +126,14 @@ export function Navbar() {
             </span>
           </div>
         </Link>
-        <div className={`hidden md:flex items-center gap-6 text-sm font-bold transition-colors ${isScrolled ? "text-slate-600" : "text-white/90"
-          }`}>
+        <div className={`hidden md:flex items-center gap-6 text-sm font-bold transition-colors ${textColor}`}>
           <Link href="/beginner" className="hover:text-yellow-500 transition-colors">Cơ Bản</Link>
           <Link href="/intermediate" className="hover:text-yellow-500 transition-colors">Trung Cấp</Link>
           <Link href="/advanced" className="hover:text-yellow-500 transition-colors">Nâng Cao</Link>
+          <Link href="/all" className="hover:text-yellow-500 transition-colors flex items-center gap-1">
+            <Compass className="w-4 h-4" />
+            Khám Phá
+          </Link>
           <Link href="/request" className="hover:text-yellow-500 transition-colors flex items-center gap-1">
             Yêu Cầu Phim
           </Link>
@@ -130,10 +144,7 @@ export function Navbar() {
         <Button
           variant="ghost"
           size="icon"
-          className={`transition-all hover:scale-110 ${isScrolled
-            ? "text-slate-700 hover:bg-slate-100"
-            : "text-white/90 hover:bg-white/10"
-            }`}
+          className={`transition-all hover:scale-110 ${iconColor}`}
           onClick={() => router.push("/search")}
         >
           <Search className="h-5 w-5" />

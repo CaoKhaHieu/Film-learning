@@ -24,6 +24,7 @@ export function Footer() {
             <li><a href="/beginner" className="hover:text-yellow-600 transition-colors">Cấp độ Cơ bản</a></li>
             <li><a href="/intermediate" className="hover:text-yellow-600 transition-colors">Cấp độ Trung cấp</a></li>
             <li><a href="/advanced" className="hover:text-yellow-600 transition-colors">Cấp độ Nâng cao</a></li>
+            <li><a href="/all" className="hover:text-yellow-600 transition-colors">Tất cả phim</a></li>
           </ul>
         </div>
 

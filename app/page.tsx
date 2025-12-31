@@ -18,9 +18,9 @@ export default async function Home() {
       <div className="container mx-auto px-4 py-12 space-y-16">
         <ContinueWatchingRow />
         <Top10Row title="Top 5 Phim Nên Học" movies={topMovies} />
-        <MovieRow title="Phim Cấp Độ Cơ Bản (Beginner)" movies={beginnerMovies} />
-        <MovieRow title="Phim Cấp Độ Trung Cấp (Intermediate)" movies={intermediateMovies} />
-        <MovieRow title="Phim Cấp Độ Nâng Cao (Advanced)" movies={advancedMovies} />
+        <MovieRow title="Phim Cấp Độ Cơ Bản (Beginner)" movies={beginnerMovies} href="/beginner" />
+        <MovieRow title="Phim Cấp Độ Trung Cấp (Intermediate)" movies={intermediateMovies} href="/intermediate" />
+        <MovieRow title="Phim Cấp Độ Nâng Cao (Advanced)" movies={advancedMovies} href="/advanced" />
       </div>
 
       <Footer />

@@ -8,7 +8,7 @@ import type { Movie } from '@/lib/supabase-server';
 
 interface MovieListWithLoadMoreProps {
   initialMovies: Movie[];
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  difficulty: string;
   itemsPerPage?: number;
 }
 

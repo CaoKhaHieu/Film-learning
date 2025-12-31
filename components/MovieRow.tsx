@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { MovieCard } from "./MovieCard";
 
@@ -14,22 +15,37 @@ interface Movie {
 interface MovieRowProps {
   title: string;
   movies: Movie[];
+  href?: string;
 }
 
-export function MovieRow({ title, movies }: MovieRowProps) {
+export function MovieRow({ title, movies, href }: MovieRowProps) {
+  const TitleContent = (
+    <div className="flex items-center gap-3">
+      <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-yellow-400 to-orange-500 shadow-sm" />
+      <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight group cursor-pointer flex items-center gap-2">
+        {title}
+        <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-600 transition-all group-hover:translate-x-1" />
+      </h2>
+    </div>
+  );
+
   return (
     <div className="py-6 md:py-8 px-4 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-yellow-400 to-orange-500 shadow-sm" />
-          <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight group cursor-pointer flex items-center gap-2">
-            {title}
-            <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-600 transition-all group-hover:translate-x-1" />
-          </h2>
-        </div>
-        <a href="#" className="hidden md:flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors bg-white px-4 py-1.5 rounded-full shadow-sm border border-slate-100 hover:shadow-md hover:border-indigo-100">
-          Xem tất cả
-        </a>
+        {href ? (
+          <Link href={href}>
+            {TitleContent}
+          </Link>
+        ) : TitleContent}
+
+        {href && (
+          <Link
+            href={href}
+            className="hidden md:flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors bg-white px-4 py-1.5 rounded-full shadow-sm border border-slate-100 hover:shadow-md hover:border-indigo-100"
+          >
+            Xem tất cả
+          </Link>
+        )}
       </div>
 
       <div className="relative">
