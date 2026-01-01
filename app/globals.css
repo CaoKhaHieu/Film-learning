@@ -119,9 +119,9 @@
   body {
     @apply bg-slate-50 text-slate-900;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(219, 234, 254, 0.5) 0, transparent 50%), 
-      radial-gradient(at 50% 0%, rgba(243, 232, 255, 0.5) 0, transparent 50%), 
-      radial-gradient(at 100% 0%, rgba(254, 226, 226, 0.5) 0, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(226, 232, 240, 0.3) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, rgba(241, 245, 249, 0.3) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, rgba(226, 232, 240, 0.3) 0, transparent 50%);
     background-attachment: fixed;
   }
   h1, h2, h3, h4, h5, h6 {
@@ -163,4 +163,12 @@
 
 .animate-fadeIn {
   animation: fadeIn 0.4s ease-out forwards;
+}
+@keyframes slowZoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
+.animate-slow-zoom {
+  animation: slowZoom 20s ease-in-out infinite alternate;
 }

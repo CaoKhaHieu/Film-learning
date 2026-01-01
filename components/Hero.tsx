@@ -36,43 +36,53 @@ export async function Hero() {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-slate-900">
-      {/* Background Image Area */}
-      <div className="absolute inset-0 w-full h-full">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-fixed"
-          style={{
-            backgroundImage: `url('${randomMovie.background_image || randomMovie.poster || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'}')`,
-          }}
-        />
-        {/* Simple gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
+    <div className="relative h-[85vh] w-full overflow-hidden bg-slate-50 flex items-center">
+      {/* Background Image with sophisticated fade */}
+      <div className="absolute inset-0 w-full h-full flex justify-end">
+        <div className="relative w-full md:w-[70%] h-full overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center animate-slow-zoom"
+            style={{
+              backgroundImage: `url('${randomMovie.background_image || randomMovie.poster || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop'}')`,
+            }}
+          />
+          {/* Sharper Masking: Solid white on the far left, clear image on the right */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-slate-50/80 to-transparent via-20% to-70% z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-50/40 via-transparent to-transparent z-10" />
+        </div>
       </div>
 
       {/* Content Area */}
-      <div className="relative z-10 container mx-auto px-4 md:px-16 h-full flex flex-col justify-center">
-        <div className="max-w-3xl space-y-6 animate-fade-in-up">
+      <div className="relative z-20 container mx-auto px-4 md:px-16 pt-20">
+        <div className="max-w-2xl space-y-6 animate-fade-in-up">
 
           {/* Metadata Badges */}
-          <div className="flex items-center gap-3 text-sm font-bold text-white flex-wrap">
+          <div className="flex items-center gap-4 text-[10px] font-black tracking-[0.15em] uppercase text-slate-400">
             {/* IMDb Badge */}
-            <div className="flex items-center border border-yellow-400 rounded px-2 py-0.5 gap-1.5 bg-black/20 backdrop-blur-sm">
-              <span className="text-yellow-400 font-black">IMDb</span>
-              <span>{randomMovie.vote_average ? randomMovie.vote_average.toFixed(1) : 'N/A'}</span>
+            <div className="flex items-center bg-yellow-400 text-slate-900 px-2 py-0.5 rounded-sm shadow-sm">
+              <span className="mr-1">IMDb</span>
+              <span className="text-slate-900">{randomMovie.vote_average ? randomMovie.vote_average.toFixed(1) : 'N/A'}</span>
             </div>
 
-            {/* Year */}
-            <span className="border border-white/30 px-2 py-0.5 rounded bg-black/20 backdrop-blur-sm">
-              {randomMovie.release_date ? new Date(randomMovie.release_date).getFullYear() : 2025}
-            </span>
-
-            {/* Duration */}
-            {randomMovie.runtime && (
-              <span className="border border-white/30 px-2 py-0.5 rounded bg-black/20 backdrop-blur-sm">
-                {Math.floor(randomMovie.runtime / 60)}h {randomMovie.runtime % 60}m
+            {/* Year & Duration */}
+            <div className="flex items-center gap-3">
+              <span>{randomMovie.release_date ? new Date(randomMovie.release_date).getFullYear() : 2025}</span>
+              <span className="w-1 h-1 bg-yellow-400 rounded-full" />
+              <span>
+                {randomMovie.runtime ? `${Math.floor(randomMovie.runtime / 60)}h ${randomMovie.runtime % 60}m` : '2h 15m'}
               </span>
-            )}
+            </div>
+          </div>
+
+          {/* Title & Description */}
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] drop-shadow-sm">
+              {randomMovie.title_vi || randomMovie.title}
+            </h1>
+
+            <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-lg font-medium border-l-4 border-yellow-400 pl-4 line-clamp-3">
+              {randomMovie.overview || 'Khám phá bộ phim tuyệt vời này và học tiếng Anh qua phim một cách hiệu quả.'}
+            </p>
           </div>
 
           {/* Genres */}
@@ -81,7 +91,7 @@ export async function Hero() {
               {randomMovie.genres.split(',').map((genre) => (
                 <span
                   key={genre.trim()}
-                  className="px-3 py-1.5 bg-white/5 backdrop-blur-sm text-slate-200 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer border border-white/20 hover:bg-white/20 hover:border-white/50 hover:text-white hover:scale-105"
+                  className="px-4 py-1.5 bg-white text-slate-500 rounded-full text-[9px] font-black tracking-wider uppercase border border-slate-100 shadow-sm hover:border-yellow-400 hover:text-yellow-600 transition-all cursor-default"
                 >
                   {genre.trim()}
                 </span>
@@ -89,22 +99,15 @@ export async function Hero() {
             </div>
           )}
 
-          {/* Description */}
-          <div className="space-y-2">
-            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-tight mb-4">
-              {randomMovie.title_vi || randomMovie.title}
-            </h1>
-
-            <p className="text-slate-300 text-base leading-relaxed max-w-2xl line-clamp-3 font-medium drop-shadow-sm">
-              {randomMovie.overview || 'Khám phá bộ phim tuyệt vời này và học tiếng Anh qua phim một cách hiệu quả.'}
-            </p>
-          </div>
-
           {/* Actions */}
-          <div className="pt-6 flex items-center gap-6">
+          <div className="pt-4">
             <Link href={`/movie/${randomMovie.id}`}>
-              <button className="group relative w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg shadow-yellow-400/20 transition-all hover:scale-110 hover:shadow-yellow-400/40 cursor-pointer">
-                <Play className="w-8 h-8 fill-slate-900 text-slate-900 ml-1 transition-transform group-hover:scale-110" />
+              <button className="group relative flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-xl font-black shadow-xl shadow-slate-900/30 transition-all hover:scale-[1.02] hover:bg-black cursor-pointer overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/0 via-yellow-400/10 to-yellow-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                <div className="bg-yellow-400 p-1.5 rounded-lg group-hover:rotate-[360deg] transition-transform duration-700">
+                  <Play className="w-5 h-5 fill-slate-900 text-slate-900" />
+                </div>
+                <span className="text-lg tracking-tight">Bắt đầu học ngay</span>
               </button>
             </Link>
           </div>
@@ -113,10 +116,11 @@ export async function Hero() {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-bounce pointer-events-none">
-        <span className="text-white/50 text-[10px] font-medium uppercase tracking-[0.2em]">Scroll</span>
-        <ChevronDown className="w-6 h-6 text-white/50" />
+        <span className="text-slate-400 text-[10px] font-medium uppercase tracking-[0.2em]">Scroll</span>
+        <ChevronDown className="w-6 h-6 text-slate-400" />
       </div>
     </div>
+
   );
 }
 
