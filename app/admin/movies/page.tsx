@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +49,8 @@ export default function AdminMoviesPage() {
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const ITEMS_PER_PAGE = 20;
+  const observerTarget = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false);
 
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
@@ -64,10 +66,43 @@ export default function AdminMoviesPage() {
     fetchMovies(true);
   }, [debouncedSearchQuery, filterDifficulty, filterVIP]);
 
+  const loadMore = useCallback(() => {
+    if (!loadingMore && hasMore && !loadingRef.current) {
+      fetchMovies(false);
+    }
+  }, [loadingMore, hasMore]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingRef.current && !loading) {
+          loadMore();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '200px'
+      }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [loadMore, hasMore, loading]);
+
   const fetchMovies = async (reset = false) => {
+    if (loadingRef.current && !reset) return;
+
+    loadingRef.current = true;
     if (reset) {
       setLoading(true);
-      setPage(0);
       setMovies([]);
     } else {
       setLoadingMore(true);
@@ -91,7 +126,13 @@ export default function AdminMoviesPage() {
 
       // Apply filters
       if (debouncedSearchQuery) {
-        const searchFilter = `title.ilike.%${debouncedSearchQuery}%,title_vi.ilike.%${debouncedSearchQuery}%`;
+        let searchFilter = `title.ilike.%${debouncedSearchQuery}%,title_vi.ilike.%${debouncedSearchQuery}%`;
+
+        // If search query is a number, also search by tmdb_id
+        if (!isNaN(Number(debouncedSearchQuery))) {
+          searchFilter += `,tmdb_id.eq.${debouncedSearchQuery}`;
+        }
+
         countQuery = countQuery.or(searchFilter);
         dataQuery = dataQuery.or(searchFilter);
       }
@@ -118,25 +159,26 @@ export default function AdminMoviesPage() {
 
       if (reset) {
         setMovies(data || []);
+        setPage(1);
       } else {
-        setMovies(prev => [...prev, ...(data || [])]);
+        setMovies(prev => {
+          const existingIds = new Set(prev.map(m => m.id));
+          const newMovies = (data || []).filter(m => !existingIds.has(m.id));
+          return [...prev, ...newMovies];
+        });
+        setPage(currentPage + 1);
       }
 
       setHasMore((data?.length || 0) === ITEMS_PER_PAGE);
-      setPage(currentPage + 1);
     } catch (error) {
       console.error("Error fetching movies:", error);
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      loadingRef.current = false;
     }
   };
 
-  const loadMore = () => {
-    if (!loadingMore && hasMore) {
-      fetchMovies(false);
-    }
-  };
 
   const deleteMovie = async (id: string, title: string) => {
     if (!confirm(`Bạn có chắc muốn xóa phim "${title}"?`)) return;
@@ -228,7 +270,7 @@ export default function AdminMoviesPage() {
         <div className="relative flex-1 min-w-[300px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Tìm kiếm phim (Tên Anh/Việt)..."
+            placeholder="Tìm kiếm phim (Tên Anh/Việt, TMDB ID)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 bg-slate-50 border-slate-200"
@@ -358,7 +400,7 @@ export default function AdminMoviesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/admin/movies/${movie.id}`}>
+                      <Link href={`/admin/movies/${movie.tmdb_id || movie.id}`}>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -380,25 +422,18 @@ export default function AdminMoviesPage() {
         </Table>
       </div>
 
-      {/* Load More Button */}
-      {hasMore && !loading && filteredMovies.length > 0 && (
-        <div className="mt-6 flex justify-center">
-          <Button
-            onClick={loadMore}
-            disabled={loadingMore}
-            variant="outline"
-            className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700 min-w-[150px]"
-          >
-            {loadingMore ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang tải...
-              </>
-            ) : (
-              "Tải thêm phim"
-            )}
-          </Button>
-        </div>
-      )}
+      {/* Infinite Scroll Observer Target */}
+      <div ref={observerTarget} className="h-10 flex items-center justify-center mt-4">
+        {loadingMore && (
+          <div className="flex items-center gap-2 text-slate-500">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Đang tải thêm phim...</span>
+          </div>
+        )}
+        {!hasMore && movies.length > 0 && (
+          <p className="text-slate-400 text-sm italic">Đã hiển thị tất cả phim</p>
+        )}
+      </div>
     </div>
   );
 }

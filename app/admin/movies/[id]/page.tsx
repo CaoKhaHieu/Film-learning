@@ -47,11 +47,18 @@ export default function EditMoviePage() {
     if (!movieId) return;
 
     try {
-      const { data: movie, error: movieError } = await supabase
-        .from("movies")
-        .select("*")
-        .eq("id", movieId)
-        .single();
+      // Check if movieId is a TMDB ID (number) or Supabase ID (UUID)
+      const isTmdbId = !isNaN(Number(movieId));
+
+      let query = supabase.from("movies").select("*");
+
+      if (isTmdbId) {
+        query = query.eq("tmdb_id", parseInt(movieId));
+      } else {
+        query = query.eq("id", movieId);
+      }
+
+      const { data: movie, error: movieError } = await query.single();
 
       if (movieError) {
         console.error("Supabase movie fetch error:", movieError);
@@ -68,7 +75,7 @@ export default function EditMoviePage() {
       const { data: subtitles, error: subtitlesError } = await supabase
         .from("subtitles")
         .select("*")
-        .eq("movie_id", movieId);
+        .eq("movie_id", movie.id);
 
       if (subtitlesError) {
         console.warn("Error fetching subtitles (ignoring):", subtitlesError);
@@ -94,30 +101,32 @@ export default function EditMoviePage() {
     setSaving(true);
 
     try {
+      if (!formData.id) throw new Error("Movie ID is missing");
+
       // Update movie - Only update video_url as requested
       const { error: movieError } = await supabase
         .from("movies")
         .update({
           video_url: formData.video_url
         })
-        .eq("id", movieId);
+        .eq("id", formData.id);
 
       if (movieError) throw movieError;
 
       // Update subtitles - delete old ones and insert new ones
-      await supabase.from("subtitles").delete().eq("movie_id", movieId);
+      await supabase.from("subtitles").delete().eq("movie_id", formData.id);
 
       const subtitles = [];
       if (subtitleEnUrl) {
         subtitles.push({
-          movie_id: movieId,
+          movie_id: formData.id,
           language: "en",
           url: subtitleEnUrl,
         });
       }
       if (subtitleViUrl) {
         subtitles.push({
-          movie_id: movieId,
+          movie_id: formData.id,
           language: "vi",
           url: subtitleViUrl,
         });

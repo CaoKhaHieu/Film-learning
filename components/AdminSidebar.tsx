@@ -41,7 +41,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 min-h-screen flex flex-col">
+    <aside className="w-64 bg-white border-r border-slate-200 h-screen sticky top-0 flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-slate-200">
         <Link href="/admin" className="flex items-center gap-3">
@@ -56,7 +56,7 @@ export function AdminSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <div className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
