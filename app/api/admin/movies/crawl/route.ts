@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     // Transform to our DB schema
     const movieData = {
       tmdb_id: movieJson.id,
-      title: movieJson.title || movieJson.original_title,
+      title: movieJson.original_title,
       title_vi: movieJson.title_vi || movieJson.title,
       overview: movieJson.overview,
       poster: movieJson.poster_path ? `https://image.tmdb.org/t/p/original${movieJson.poster_path}` : null,

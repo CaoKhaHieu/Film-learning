@@ -50,9 +50,19 @@ export default function AdminMoviesPage() {
   const [totalCount, setTotalCount] = useState(0);
   const ITEMS_PER_PAGE = 20;
 
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   useEffect(() => {
     fetchMovies(true);
-  }, []);
+  }, [debouncedSearchQuery, filterDifficulty, filterVIP]);
 
   const fetchMovies = async (reset = false) => {
     if (reset) {
@@ -68,19 +78,41 @@ export default function AdminMoviesPage() {
       const from = currentPage * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
-      // Get total count
-      const { count } = await supabase
+      // Base queries
+      let countQuery = supabase
         .from("movies")
         .select("*", { count: "exact", head: true });
 
-      setTotalCount(count || 0);
-
-      // Get paginated data
-      const { data, error } = await supabase
+      let dataQuery = supabase
         .from("movies")
         .select("*")
         .order("created_at", { ascending: false })
         .range(from, to);
+
+      // Apply filters
+      if (debouncedSearchQuery) {
+        const searchFilter = `title.ilike.%${debouncedSearchQuery}%,title_vi.ilike.%${debouncedSearchQuery}%`;
+        countQuery = countQuery.or(searchFilter);
+        dataQuery = dataQuery.or(searchFilter);
+      }
+
+      if (filterDifficulty !== "all") {
+        countQuery = countQuery.eq("difficulty_level", filterDifficulty);
+        dataQuery = dataQuery.eq("difficulty_level", filterDifficulty);
+      }
+
+      if (filterVIP !== "all") {
+        const isVip = filterVIP === "vip";
+        countQuery = countQuery.eq("is_vip", isVip);
+        dataQuery = dataQuery.eq("is_vip", isVip);
+      }
+
+      // Execute count query
+      const { count } = await countQuery;
+      setTotalCount(count || 0);
+
+      // Execute data query
+      const { data, error } = await dataQuery;
 
       if (error) throw error;
 
@@ -160,18 +192,7 @@ export default function AdminMoviesPage() {
     }
   };
 
-  const filteredMovies = movies.filter((movie) => {
-    const matchesSearch =
-      movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (movie.title_vi && movie.title_vi.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const matchesDifficulty = filterDifficulty === "all" || movie.difficulty_level === filterDifficulty;
-    const matchesVIP = filterVIP === "all" ||
-      (filterVIP === "vip" && movie.is_vip) ||
-      (filterVIP === "free" && !movie.is_vip);
-
-    return matchesSearch && matchesDifficulty && matchesVIP;
-  });
+  const filteredMovies = movies;
 
   const getDifficultyBadge = (level: string | null) => {
     switch (level) {

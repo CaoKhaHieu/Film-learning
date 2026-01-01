@@ -79,13 +79,57 @@ export default function NewMoviePage() {
     }
   };
 
+  const [previewM3u8, setPreviewM3u8] = useState("");
+  const [previewSubEn, setPreviewSubEn] = useState("");
+  const [previewSubVi, setPreviewSubVi] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, lang: 'en' | 'vi') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      // We need a temporary ID or use TMDB ID for the path since movie isn't created yet
+      // Or we can just use a timestamp-based path
+      const timestamp = Date.now();
+      const fileName = `temp/${timestamp}_${lang}_${file.name}`;
+
+      const { data, error } = await supabase.storage
+        .from('subtitles')
+        .upload(fileName, file, { upsert: true });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage.from('subtitles').getPublicUrl(fileName);
+
+      if (lang === 'en') setPreviewSubEn(publicUrl);
+      else setPreviewSubVi(publicUrl);
+
+      alert(`Đã tải lên phụ đề ${lang === 'en' ? 'tiếng Anh' : 'tiếng Việt'} thành công!`);
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      alert(`Lỗi khi tải lên: ${error.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleConfirmImport = async () => {
     if (!previewData) return;
 
     setLoading(true);
     try {
+      // Get existing movie to preserve video_url
+      const { data: existingMovie } = await supabase
+        .from("movies")
+        .select("video_url")
+        .eq("tmdb_id", previewData.tmdb_id)
+        .single();
+
       const movieData = {
         ...previewData,
+        video_url: previewM3u8 || existingMovie?.video_url || null,
       };
 
       const { data: movie, error: movieError } = await supabase
@@ -96,6 +140,18 @@ export default function NewMoviePage() {
 
       if (movieError) throw movieError;
 
+      // Save subtitles
+      const subtitles = [];
+      if (previewSubEn) subtitles.push({ movie_id: movie.id, language: 'en', url: previewSubEn });
+      if (previewSubVi) subtitles.push({ movie_id: movie.id, language: 'vi', url: previewSubVi });
+
+      if (subtitles.length > 0) {
+        await supabase.from('subtitles').delete().eq('movie_id', movie.id);
+        const { error: subError } = await supabase.from('subtitles').insert(subtitles);
+        if (subError) throw subError;
+      }
+
+      // Update form for final review
       setFormData({
         tmdb_id: movie.tmdb_id.toString(),
         title: movie.title || "",
@@ -111,9 +167,10 @@ export default function NewMoviePage() {
         is_vip: movie.is_vip || false,
         difficulty_level: movie.difficulty_level || "intermediate",
       });
+      setSubtitleEnUrl(previewSubEn);
+      setSubtitleViUrl(previewSubVi);
 
       setShowPreview(false);
-      alert("Đã import phim vào cơ sở dữ liệu thành công! Bạn có thể bổ sung thêm phụ đề hoặc video URL bên dưới.");
     } catch (error: any) {
       console.error("Import error:", error);
       alert(`Lỗi khi import: ${error.message}`);
@@ -127,12 +184,26 @@ export default function NewMoviePage() {
     setLoading(true);
 
     try {
+      // Get existing movie to preserve video_url if not provided
+      let finalVideoUrl = formData.video_url;
+      if (!finalVideoUrl && formData.tmdb_id) {
+        const { data: existing } = await supabase
+          .from("movies")
+          .select("video_url")
+          .eq("tmdb_id", parseInt(formData.tmdb_id))
+          .single();
+        if (existing?.video_url) {
+          finalVideoUrl = existing.video_url;
+        }
+      }
+
       // Prepare data
       const movieData = {
         ...formData,
         tmdb_id: formData.tmdb_id ? parseInt(formData.tmdb_id) : null,
         runtime: formData.runtime ? parseInt(formData.runtime) : null,
         vote_average: formData.vote_average ? parseFloat(formData.vote_average) : null,
+        video_url: finalVideoUrl || null,
       };
 
       // Upsert movie
@@ -397,54 +468,6 @@ export default function NewMoviePage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">URL Video (HLS)</label>
-              <input
-                type="url"
-                value={formData.video_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, video_url: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl focus:outline-none focus:border-yellow-500 transition-all"
-                placeholder="https://example.com/video.m3u8"
-              />
-              <p className="text-xs text-gray-500 mt-1">URL file HLS (.m3u8) của video</p>
-            </div>
-
-            <div className="border-t border-zinc-800 pt-6 mt-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <div className="w-1.5 h-4 bg-yellow-500 rounded-full" />
-                Phụ Đề
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-                    URL Phụ đề tiếng Anh (EN)
-                  </label>
-                  <input
-                    type="url"
-                    value={subtitleEnUrl}
-                    onChange={(e) => setSubtitleEnUrl(e.target.value)}
-                    className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl focus:outline-none focus:border-yellow-500 transition-all"
-                    placeholder="https://example.com/subtitle-en.vtt"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-wider">
-                    URL Phụ đề tiếng Việt (VI)
-                  </label>
-                  <input
-                    type="url"
-                    value={subtitleViUrl}
-                    onChange={(e) => setSubtitleViUrl(e.target.value)}
-                    className="w-full px-4 py-3 bg-zinc-800/50 border border-zinc-700 rounded-xl focus:outline-none focus:border-yellow-500 transition-all"
-                    placeholder="https://example.com/subtitle-vi.vtt"
-                  />
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Settings */}
@@ -554,6 +577,28 @@ export default function NewMoviePage() {
                 </p>
               </div>
 
+              <div className="space-y-3 bg-black/40 p-4 rounded-2xl border border-zinc-800/50">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest flex items-center gap-2">
+                    <Zap className="w-3 h-3 fill-yellow-500" /> CLI Command (Crawl & Translate)
+                  </p>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`node tools/crawl-media-single.js ${previewData.tmdb_id}`);
+                    }}
+                    className="text-[10px] font-bold text-gray-400 hover:text-white transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <code className="block text-xs text-gray-300 font-mono break-all bg-zinc-900/80 p-3 rounded-xl border border-zinc-800">
+                  node tools/crawl-media-single.js {previewData.tmdb_id}
+                </code>
+                <p className="text-[9px] text-gray-500 italic">
+                  * Chạy lệnh này trong terminal để tự động lấy m3u8 và dịch phụ đề.
+                </p>
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <Button
                   onClick={() => setShowPreview(false)}
@@ -567,9 +612,11 @@ export default function NewMoviePage() {
                   disabled={loading}
                   className="flex-1 py-6 rounded-2xl font-black bg-yellow-500 hover:bg-yellow-400 text-black shadow-lg shadow-yellow-500/20"
                 >
-                  {loading ? "Đang import..." : (
+                  {loading ? (
+                    "Đang lưu..."
+                  ) : (
                     <>
-                      <Check className="w-5 h-5 mr-2" /> Xác nhận & Nhập Form
+                      <Check className="w-5 h-5 mr-2" /> Xác nhận & Lưu Phim
                     </>
                   )}
                 </Button>
